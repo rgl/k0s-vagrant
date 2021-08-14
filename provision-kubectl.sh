@@ -1,0 +1,36 @@
+#!/bin/bash
+source /vagrant/lib.sh
+
+kubernetes_version="${1:-1.21.3}"; shift || true
+krew_version="${1:-v0.4.1}"; shift || true # NB see https://github.com/kubernetes-sigs/krew
+
+# see https://kubernetes.io/docs/tasks/tools/install-kubectl-linux/#install-using-native-package-management
+wget -qO /usr/share/keyrings/kubernetes-archive-keyring.gpg https://packages.cloud.google.com/apt/doc/apt-key.gpg
+echo 'deb [signed-by=/usr/share/keyrings/kubernetes-archive-keyring.gpg] https://apt.kubernetes.io/ kubernetes-xenial main' >/etc/apt/sources.list.d/kubernetes.list
+apt-get update
+kubectl_package_version="$(apt-cache madison kubectl | awk "/$kubernetes_version-/{print \$3}")"
+apt-get install -y "kubectl=$kubectl_package_version"
+kubectl completion bash >/usr/share/bash-completion/completions/kubectl
+kubectl version --client
+cp /usr/bin/kubectl /vagrant/shared
+
+# install the krew kubectl package manager.
+echo "installing the krew $krew_version kubectl package manager..."
+apt-get install -y --no-install-recommends git
+wget -qO- "https://github.com/kubernetes-sigs/krew/releases/download/$krew_version/krew.tar.gz" | tar xzf - ./krew-linux_amd64
+wget -q "https://github.com/kubernetes-sigs/krew/releases/download/$krew_version/krew.yaml"
+./krew-linux_amd64 install --manifest=krew.yaml
+rm krew-linux_amd64
+cat >/etc/profile.d/krew.sh <<'EOF'
+export PATH="${KREW_ROOT:-$HOME/.krew}/bin:$PATH"
+EOF
+source /etc/profile.d/krew.sh
+kubectl krew version
+
+# install get-all.
+# see https://github.com/corneliusweig/ketall/blob/master/doc/USAGE.md
+kubectl krew install get-all
+
+# install rakkess access-matrix.
+# see https://github.com/corneliusweig/rakkess/blob/master/doc/USAGE.md
+kubectl krew install access-matrix

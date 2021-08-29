@@ -1,4 +1,4 @@
-FROM golang:1.16-buster AS build
+FROM golang:1.17-bullseye AS build
 WORKDIR /build
 COPY go.* .
 RUN go mod download

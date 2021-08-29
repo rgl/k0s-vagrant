@@ -110,6 +110,13 @@ script, e.g., to capture the traffic from the `eth1` interface:
 ./wireshark.sh pandora eth1
 ```
 
+To capture a pod traffic:
+
+```bash
+# NB the filter must only return a single pod.
+./wireshark-pod.sh '-l app.kubernetes.io/name=kubernetes-dashboard'
+```
+
 ## Notes
 
 * Controller nodes

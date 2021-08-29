@@ -322,8 +322,9 @@ kubectl \
 # NB without this, calls like kubectl api-versions will fail.
 while [ -n "$(kubectl get apiservices -o json | jq -r '.items[] | select(.status.conditions[] | select(.type == "Available" and .status != "True")) | .metadata.name')" ]; do sleep 5; done
 
-# blindly trust the controller1 ssh server key.
+# blindly trust the controller1 and worker1 ssh server key.
 ssh-keyscan -H controller1 >>~/.ssh/known_hosts
+ssh-keyscan -H worker1 >>~/.ssh/known_hosts
 
 # show the controller1 node system information.
 ssh controller1 k0s sysinfo

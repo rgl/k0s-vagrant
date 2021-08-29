@@ -11,6 +11,23 @@ wget -qO- --user vagrant --password vagrant \
     "$registry_url/v2/_catalog" \
     | jq .
 
+# show the kubernetes daemons arguments.
+function ps-show-args {
+    ssh $1 ps -wwweo args \
+        | grep -E "^[^ ]*/$2 " \
+        | grep -v grep \
+        | tr ' ' '\n' \
+        | tail +2 \
+        | sort \
+        | sed -E 's,(.+),    \1,g'
+}
+ps-show-args controller1 kube-apiserver 
+ps-show-args controller1 kube-scheduler
+ps-show-args controller1 kube-controller-manager
+ps-show-args controller1 konnectivity-server
+ps-show-args worker1 proxy-agent # aka konnectivity-agent
+ps-show-args worker1 kubelet
+
 # kubernetes info.
 kubectl version --short
 kubectl cluster-info

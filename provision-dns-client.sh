@@ -21,9 +21,8 @@ network:
           - $dns_server_ip_address
 EOF
   netplan apply
-
   # wait for the configuration to be applied by systemd-networkd.
-  # NB RKE kubelet uses this file as --resolv-conf=/run/systemd/resolve/resolv.conf
+  # NB kubelet uses this file as --resolv-conf=/run/systemd/resolve/resolv.conf
   while [ "$(awk '/^nameserver /{print $2}' /run/systemd/resolve/resolv.conf)" != "$dns_server_ip_address" ]; do
     sleep 1
   done

@@ -113,3 +113,9 @@ fi
 # trust the pandora example ca.
 cp /vagrant/shared/tls/example-ca/example-ca-crt.pem /usr/local/share/ca-certificates/example-ca.crt
 update-ca-certificates -v
+
+# install iptables.
+apt-get install -y iptables
+
+# install tcpdump.
+apt-get install -y tcpdump

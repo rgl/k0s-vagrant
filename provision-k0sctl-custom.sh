@@ -1,6 +1,13 @@
 #!/bin/bash
 source /vagrant/lib.sh
 
+# clone my repo which reverts f6074e98d22cd95684db9a480604cf881aeb3915
+git clone -b revert-f6074 https://github.com/rgl/k0sctl
+cd k0sctl
+go build
+ln -fs $PWD/k0sctl /usr/local/bin
+exit 0
+
 # install the version that better honours peerAddress.
 # see https://github.com/k0sproject/k0sctl
 # NB because we need https://github.com/k0sproject/k0sctl/pull/169 (https://github.com/k0sproject/k0sctl/issues/168)

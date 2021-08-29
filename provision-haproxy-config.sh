@@ -17,8 +17,6 @@ fi
 # configure haproxy as L4 TCP forwarding load balancer.
 # NB when boostrapping this ignores the backend servers certificates,
 #    after bootstrap, this properly verifies them.
-# TODO https://github.com/k0sproject/k0s/issues/1042
-# TODO https://github.com/k0sproject/k0s/issues/1043
 # see https://docs.k0sproject.io/v1.21.3+k0s.0/high-availability/#example-configuration-haproxy
 # see Bind and server options at https://cbonte.github.io/haproxy-dconv/1.8/configuration.html#5
 # see https://cbonte.github.io/haproxy-dconv/1.8/configuration.html#4.2-bind
@@ -69,10 +67,9 @@ listen stats
   stats uri /
 EOF
 (
-# TODO discover and add the other services healthz endpoints.
-cat <<'EOF' | while read port name healthz; do
+cat <<'EOF' | while read port name healthz_path healthz_http_port; do
 6443 kubeApi /healthz
-8132 konnectivity
+8132 konnectivity /healthz 8092
 9443 controllerJoinApi
 EOF
   cat <<EOF
@@ -82,9 +79,16 @@ listen $name
   option tcplog
   option tcp-check
 EOF
-  if [ "$command" == 'set-health-checks' -a -n "$healthz" ]; then
+  # HTTP health check.
+  if [ "$command" == 'set-health-checks' -a -n "$healthz_http_port" ]; then
     cat <<EOF
-  option httpchk GET $healthz "HTTP/1.0\r\nHost:$controller_fqdn\r\nAuthorization:Bearer $(cat $haproxy_sa_token_path)"
+  option httpchk GET $healthz_path "HTTP/1.0\r\nHost:$controller_fqdn"
+  http-check expect string ok
+EOF
+  # HTTPS health check.
+  elif [ "$command" == 'set-health-checks' -a -n "$healthz_path" ]; then
+    cat <<EOF
+  option httpchk GET $healthz_path "HTTP/1.0\r\nHost:$controller_fqdn\r\nAuthorization:Bearer $(cat $haproxy_sa_token_path)"
   http-check expect string ok
 EOF
   fi
@@ -97,15 +101,24 @@ EOF
   i=0
   for ip_address in `echo "$controller_ip_addresses" | tr , ' '`; do
     ((i=i+1))
-    if [ "$command" == 'set-health-checks' -a -n "$healthz" ]; then
+    # HTTP health check.
+    if [ "$command" == 'set-health-checks' -a -n "$healthz_http_port" ]; then
       cat <<EOF
   # you can verify the health check with:
-  #   (printf "GET /healthz HTTP/1.0\r\nHost:$controller_fqdn\r\nAuthorization:Bearer \$(cat $haproxy_sa_token_path)\r\n\r\n"; sleep 2) | openssl s_client -connect $ip_address:$port -servername $controller_fqdn -CAfile $haproxy_sa_ca_path
+  #   (printf "GET $healthz_path HTTP/1.0\r\nHost:$controller_fqdn\r\n\r\n"; sleep 2) | nc $ip_address $healthz_http_port
+  server $name$i $ip_address:$port check port $healthz_http_port
+EOF
+    # HTTPS health check.
+    elif [ "$command" == 'set-health-checks' -a -n "$healthz_path" ]; then
+      cat <<EOF
+  # you can verify the health check with:
+  #   (printf "GET $healthz_path HTTP/1.0\r\nHost:$controller_fqdn\r\nAuthorization:Bearer \$(cat $haproxy_sa_token_path)\r\n\r\n"; sleep 2) | openssl s_client -connect $ip_address:$port -servername $controller_fqdn -CAfile $haproxy_sa_ca_path
   server $name$i $ip_address:$port check check-ssl check-sni $controller_fqdn ca-file $haproxy_sa_ca_path
 EOF
+    # TLS health check.
     else
       cat <<EOF
-  server $name$i $ip_address:$port check check-ssl check-sni $controller_fqdn verify none
+  server $name$i $ip_address:$port check check-ssl check-sni $controller_fqdn ca-file $haproxy_sa_ca_path
 EOF
     fi
   done

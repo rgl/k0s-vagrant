@@ -58,19 +58,33 @@ def save_k0sctl_config():
                                         'name': 'bitnami',
                                         'url': 'https://charts.bitnami.com/bitnami'
                                     },
+                                    {
+                                        'name': 'k8s-dashboard',
+                                        'url': 'https://kubernetes.github.io/dashboard'
+                                    },
                                 ],
                                 # NB these charts are translated to charts.helm.k0sproject.io resources.
+                                # see https://github.com/k0sproject/k0s/blob/main/docs/helm-charts.md
                                 'charts': [
                                     # see https://artifacthub.io/packages/helm/traefik/traefik
                                     # see https://github.com/traefik/traefik-helm-chart
+                                    # see https://github.com/traefik/traefik-helm-chart/blob/master/traefik/values.yaml
                                     # see https://docs.k0sproject.io/v1.21.3+k0s.0/examples/traefik-ingress/
                                     {
                                         'name': 'traefik',
                                         'chartname': 'traefik/traefik',
-                                        'version': '10.1.2',
+                                        'version': '10.3.2',
                                         'namespace': 'default',
                                         'values':
                                             '''
+                                            ports:
+                                              # enable tls.
+                                              # NB this is not really configured. it will use a dummy
+                                              #    self-signed certificate. this is only here to be
+                                              #    able to login into the kubernetes dashboard.
+                                              websecure:
+                                                tls:
+                                                  enabled: true
                                             # publish the traefik service IP address in the Ingress
                                             # resources.
                                             providers:
@@ -83,8 +97,26 @@ def save_k0sctl_config():
                                             ingressRoute:
                                               dashboard:
                                                 enabled: false
-                                            # disable the telemetry.
-                                            globalArguments: []
+                                            logs:
+                                              # set the logging level.
+                                              general:
+                                                level: DEBUG
+                                              # enable the access logs.
+                                              access:
+                                                enabled: true
+                                            # disable the telemetry (this is done by emptying globalArguments) and
+                                            # configure traefik to skip certificate validation.
+                                            # NB this is needed to expose the k8s dashboard as an ingress at
+                                            #    https://kubernetes-dashboard.k0s.test when the dashboard is using
+                                            #    tls.
+                                            # NB without this, traefik returns "internal server error" when it
+                                            #    encounters a server certificate signed by an unknown CA.
+                                            # NB we need to use https, because the kubernetes-dashboard require it
+                                            #    to allow us to login.
+                                            # TODO see how to set the CAs in traefik.
+                                            # NB this should never be done at production.
+                                            globalArguments:
+                                              - --serverstransport.insecureskipverify=true
                                             '''
                                     },
                                     # see https://artifacthub.io/packages/helm/bitnami/metallb
@@ -93,7 +125,7 @@ def save_k0sctl_config():
                                     {
                                         'name': 'metallb',
                                         'chartname': 'bitnami/metallb',
-                                        'version': '2.5.2',
+                                        'version': '2.5.4',
                                         'namespace': 'default',
                                         'values':
                                             f'''
@@ -111,7 +143,7 @@ def save_k0sctl_config():
                                     {
                                         'name': 'external-dns',
                                         'chartname': 'bitnami/external-dns',
-                                        'version': '5.4.0',
+                                        'version': '5.4.4',
                                         'namespace': 'default',
                                         'values':
                                             f'''
@@ -126,6 +158,26 @@ def save_k0sctl_config():
                                             pdns:
                                               apiUrl: http://{config['pandoraFqdn']}
                                               apiKey: vagrant
+                                            ''',
+                                    },
+                                    # see https://artifacthub.io/packages/helm/k8s-dashboard/kubernetes-dashboard
+                                    # see https://github.com/kubernetes/dashboard/blob/master/aio/deploy/helm-chart/kubernetes-dashboard/values.yaml
+                                    {
+                                        'name': 'kubernetes-dashboard',
+                                        'chartname': 'k8s-dashboard/kubernetes-dashboard',
+                                        'version': '5.0.0',
+                                        'namespace': 'default',
+                                        'values':
+                                            f'''
+                                            ingress:
+                                              enabled: true
+                                              hosts:
+                                                - kubernetes-dashboard.{config['pandoraFqdn'].split('.', 1)[-1]}
+                                            service:
+                                              externalPort: 80
+                                            protocolHttp: true
+                                            extraArgs:
+                                              - --enable-insecure-login
                                             ''',
                                     },
                                 ]
@@ -233,6 +285,38 @@ spec:
     #    see https://github.com/kubernetes-incubator/external-dns
     - host: traefik.$domain
 EOF
+
+# create the admin user for use in the kubernetes-dashboard.
+# see https://github.com/kubernetes/dashboard/wiki/Creating-sample-user
+# see https://github.com/kubernetes/dashboard/wiki/Access-control
+kubectl apply -f - <<'EOF'
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: admin
+  namespace: default
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: admin
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: cluster-admin
+subjects:
+  - kind: ServiceAccount
+    name: admin
+    namespace: default
+EOF
+# save the admin token.
+kubectl \
+    -n default \
+    get secret \
+    $(kubectl -n default get secret | awk '/admin-token-/{print $1}') \
+    -o json | jq -r .data.token | base64 --decode \
+    >/vagrant/shared/admin-token.txt
 
 # wait for all the API services to be available.
 # NB without this, calls like kubectl api-versions will fail.

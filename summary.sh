@@ -51,14 +51,16 @@ title 'addresses'
 example_app_url="http://$(kubectl get ingress example-app -o json | jq -r .spec.rules[].host)"
 #traefik_url="http://$(kubectl get service -l app.kubernetes.io/name=traefik -o json | jq -r .items[].status.loadBalancer.ingress[].ip)/dashboard/"
 traefik_url="http://$(kubectl get ingress traefik -o json | jq -r .spec.rules[].host)"
+kubernetes_dashboard_url="https://$(kubectl get ingress -l app.kubernetes.io/name=kubernetes-dashboard -o json | jq -r .items[].spec.rules[].host)"
 python3 <<EOF
 from tabulate import tabulate
 
-headers = ('service', 'address')
+headers = ('service', 'address', 'token file')
 
 def info():
-    yield ('traefik',     '$traefik_url')
-    yield ('example-app', '$example_app_url')
+    yield ('traefik',               '$traefik_url',                 None)
+    yield ('kubernetes-dashboard',  '$kubernetes_dashboard_url',    'shared/admin-token.txt')
+    yield ('example-app',           '$example_app_url',             None)
 
 print(tabulate(info(), headers=headers))
 EOF

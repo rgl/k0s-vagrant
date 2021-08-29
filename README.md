@@ -38,6 +38,37 @@ kubectl api-resources -o wide
 kubectl get namespaces
 kubectl get all --all-namespaces -o wide
 kubectl get events --all-namespaces --sort-by=.metadata.creationTimestamp
+kubectl get charts --all-namespaces # aka charts.helm.k0sproject.io
+```
+
+## Kubernetes Dashboard
+
+Access the Kubernetes Dashboard at:
+
+  https://kubernetes-dashboard.k0s.test
+
+Then select `Token` and use the contents of `shared/admin-token.txt` as the token.
+
+You can also launch the kubernetes API server proxy in background:
+
+```bash
+export KUBECONFIG=$PWD/shared/kubeconfig
+kubectl proxy &
+```
+
+And access the kubernetes dashboard at:
+
+  http://localhost:8001/api/v1/namespaces/kubernetes-dashboard/services/https:kubernetes-dashboard:/proxy/
+
+## K9s Dashboard
+
+The [K9s](https://github.com/derailed/k9s) console UI dashboard is also
+installed in the server node. You can access it by running:
+
+```bash
+vagrant ssh controller1
+sudo -i
+k9s
 ```
 
 ## Host DNS resolver

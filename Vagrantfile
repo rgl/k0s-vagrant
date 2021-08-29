@@ -106,7 +106,8 @@ Vagrant.configure(2) do |config|
     config.vm.provision 'shell', path: 'provision-registry-proxy.sh', args: [CONFIG_PANDORA_FQDN]
     config.vm.provision 'shell', path: 'provision-registry.sh', args: [CONFIG_PANDORA_FQDN]
     config.vm.provision 'shell', path: 'provision-haproxy.sh', args: [CONFIG_CONTROLLER_FQDN, CONFIG_CONTROLLER_IP_ADDRESS, CONFIG_CONTROLLER_IP_ADDRESSES.join(',')]
-    config.vm.provision 'shell', path: 'provision-k0s.sh', args: [CONFIG_K0SCTL_VERSION, CONFIG_K0S_VERSION]
+    config.vm.provision 'shell', path: 'provision-k0s.sh', args: [CONFIG_K0S_VERSION]
+    config.vm.provision 'shell', path: 'provision-k0sctl.sh', args: [CONFIG_K0SCTL_VERSION]
     config.vm.provision 'shell', path: 'provision-kubectl.sh', args: [CONFIG_KUBECTL_VERSION, CONFIG_KREW_VERSION]
     config.vm.provision 'shell', path: 'provision-k9s.sh', args: [CONFIG_K9S_VERSION]
     config.vm.provision 'shell', path: 'provision-etcdctl.sh', args: [CONFIG_ETCDCTL_VERSION]
@@ -127,6 +128,7 @@ Vagrant.configure(2) do |config|
       config.vm.provision 'shell', path: 'provision-base.sh', args: [CONFIG_PANDORA_FQDN, CONFIG_PANDORA_IP_ADDRESS]
       config.vm.provision 'shell', path: 'provision-dns-client.sh', args: [CONFIG_PANDORA_IP_ADDRESS]
       if type == 'controller'
+        config.vm.provision 'shell', path: 'provision-k0sctl.sh', args: [CONFIG_K0SCTL_VERSION]
         config.vm.provision 'shell', path: 'provision-kubectl.sh', args: [CONFIG_KUBECTL_VERSION, CONFIG_KREW_VERSION]
         config.vm.provision 'shell', path: 'provision-k9s.sh', args: [CONFIG_K9S_VERSION]
         config.vm.provision 'shell', path: 'provision-etcdctl.sh', args: [CONFIG_ETCDCTL_VERSION]

@@ -65,6 +65,7 @@ listen stats
   bind $controller_ip_address:9000
   mode http
   stats enable
+  stats admin if TRUE
   stats uri /
 EOF
 (

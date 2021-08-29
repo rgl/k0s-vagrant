@@ -8,6 +8,13 @@ registry_username='vagrant'
 registry_password='vagrant'
 domain="$(hostname --domain)"
 
+# ensure haproxy is in bootstrap mode.
+bash /vagrant/provision-haproxy-config.sh \
+  bootstrap \
+  "$(jq -r .controllerFqdn /vagrant/shared/config.json)" \
+  "$(jq -r .controllerIpAddress /vagrant/shared/config.json)" \
+  "$(jq -r '.nodes[] | select(.type == "controller") | .ipAddress' /vagrant/shared/config.json | tr '\n' ',' | sed -E 's/,$//g')"
+
 # generate the k0sctl.yaml configuration file.
 # see https://docs.k0sproject.io/v1.21.3+k0s.0/k0sctl-install/
 # see https://docs.k0sproject.io/v1.21.3+k0s.0/configuration/

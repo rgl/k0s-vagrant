@@ -169,7 +169,12 @@ export KUBECONFIG=~/.kube/config
 
 # create the haproxy service account.
 # NB by default, any service account allowed to access the healthz endpoint.
-kubectl -n kube-system create serviceaccount haproxy
+kubectl -n kube-system \
+    create serviceaccount \
+    haproxy \
+    --dry-run=client \
+    --output yaml \
+    | kubectl apply -f -
 haproxy_sa_secret_name="$(kubectl -n kube-system get serviceaccount haproxy -o json | jq -r '.secrets[].name')"
 haproxy_sa_secret_json="$(kubectl -n kube-system get secret "$haproxy_sa_secret_name" -o json)"
 haproxy_sa_token_path='/etc/haproxy/sa-token.txt'

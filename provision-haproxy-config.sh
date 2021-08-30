@@ -82,12 +82,14 @@ EOF
   # HTTP health check.
   if [ "$command" == 'set-health-checks' -a -n "$healthz_http_port" ]; then
     cat <<EOF
+  # HTTP health check.
   option httpchk GET $healthz_path "HTTP/1.0\r\nHost:$controller_fqdn"
   http-check expect string ok
 EOF
   # HTTPS health check.
   elif [ "$command" == 'set-health-checks' -a -n "$healthz_path" ]; then
     cat <<EOF
+  # HTTPS health check.
   option httpchk GET $healthz_path "HTTP/1.0\r\nHost:$controller_fqdn\r\nAuthorization:Bearer $(cat $haproxy_sa_token_path)"
   http-check expect string ok
 EOF
@@ -104,6 +106,7 @@ EOF
     # HTTP health check.
     if [ "$command" == 'set-health-checks' -a -n "$healthz_http_port" ]; then
       cat <<EOF
+  # HTTP health check.
   # you can verify the health check with:
   #   (printf "GET $healthz_path HTTP/1.0\r\nHost:$controller_fqdn\r\n\r\n"; sleep 2) | nc $ip_address $healthz_http_port
   server $name$i $ip_address:$port check port $healthz_http_port
@@ -111,14 +114,26 @@ EOF
     # HTTPS health check.
     elif [ "$command" == 'set-health-checks' -a -n "$healthz_path" ]; then
       cat <<EOF
+  # HTTPS health check.
   # you can verify the health check with:
   #   (printf "GET $healthz_path HTTP/1.0\r\nHost:$controller_fqdn\r\nAuthorization:Bearer \$(cat $haproxy_sa_token_path)\r\n\r\n"; sleep 2) | openssl s_client -connect $ip_address:$port -servername $controller_fqdn -CAfile $haproxy_sa_ca_path
   server $name$i $ip_address:$port check check-ssl check-sni $controller_fqdn ca-file $haproxy_sa_ca_path
 EOF
-    # TLS health check.
+    # TLS health check WITHOUT application level health check.
+    elif [ "$command" == 'set-health-checks' ]; then
+      cat <<EOF
+  # TLS health check WITHOUT application level health check.
+  # you can verify the health check with:
+  #   (sleep 2) | openssl s_client -connect $ip_address:$port -servername $controller_fqdn -CAfile $haproxy_sa_ca_path
+  server $name$i $ip_address:$port check check-ssl check-sni $controller_fqdn ca-file $haproxy_sa_ca_path
+EOF
+    # TLS health check WITHOUT application level health check AND WITHOUT server certificate verification.
     else
       cat <<EOF
-  server $name$i $ip_address:$port check check-ssl check-sni $controller_fqdn ca-file $haproxy_sa_ca_path
+  # TLS health check WITHOUT application level health check AND WITHOUT server certificate verification.
+  # you can verify the health check with:
+  #   (sleep 2) | openssl s_client -connect $ip_address:$port -servername $controller_fqdn
+  server $name$i $ip_address:$port check check-ssl check-sni $controller_fqdn verify none
 EOF
     fi
   done

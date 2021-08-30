@@ -71,6 +71,44 @@ sudo -i
 k9s
 ```
 
+## DNS
+
+Make sure that all of the following commands execute successfully:
+
+```bash
+vagrant ssh pandora
+sudo -i
+
+# get a docker container dns resolver configuration. must return the pandora dns
+# nameserver 10.10.0.2.
+docker run -it --rm --name test busybox cat /etc/resolv.conf
+# resolve a internet domain.
+docker run -it --rm --name test busybox nslookup -type=a ruilopes.com
+
+# get a k8s container dns resolver configuration. it must return the cluster
+# kube-dns service cluster ip address. something alike:
+#   search default.svc.cluster.local svc.cluster.local cluster.local
+#   nameserver 10.96.0.10
+#   options ndots:5
+# see https://kubernetes.io/docs/tasks/administer-cluster/dns-debugging-resolution/
+kubectl run -it --rm --restart=Never busybox --image=busybox:1.33 -- cat /etc/resolv.conf
+# resolve a internet domain. must return something alike:
+#   Server:		10.96.0.10
+#   Address:	10.96.0.10:53
+#   Non-authoritative answer:
+#   Name:	ruilopes.com
+#   Address: 172.67.174.199
+#   Name:	ruilopes.com
+#   Address: 104.21.67.125
+kubectl run -it --rm --restart=Never busybox --image=busybox:1.33 -- nslookup -type=a ruilopes.com
+# resolve a cluster external-dns managed domain. must return something alike:
+#   Server:		10.96.0.10
+#   Address:	10.96.0.10:53
+#   Name:	traefik.k0s.test
+#   Address: 10.10.0.100
+kubectl run -it --rm --restart=Never busybox --image=busybox:1.33 -- nslookup -type=a traefik.k0s.test
+```
+
 ## Host DNS resolver
 
 To delegate the `k0s.test` zone to the kubernetes managed external dns server (running in pandora) you need to configure your system to delegate that DNS zone to the pandora DNS server, for that, you can configure your system to only use dnsmasq.

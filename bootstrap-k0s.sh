@@ -59,7 +59,7 @@ def save_k0sctl_config():
                                         'url': 'https://charts.bitnami.com/bitnami'
                                     },
                                     {
-                                        'name': 'k8s-dashboard',
+                                        'name': 'kubernetes-dashboard',
                                         'url': 'https://kubernetes.github.io/dashboard'
                                     },
                                 ],
@@ -74,7 +74,7 @@ def save_k0sctl_config():
                                         'name': 'traefik',
                                         'chartname': 'traefik/traefik',
                                         'version': '10.3.2',
-                                        'namespace': 'default',
+                                        'namespace': 'cluster-traefik',
                                         'values':
                                             '''
                                             ports:
@@ -126,7 +126,7 @@ def save_k0sctl_config():
                                         'name': 'metallb',
                                         'chartname': 'bitnami/metallb',
                                         'version': '2.5.4',
-                                        'namespace': 'default',
+                                        'namespace': 'cluster-metallb',
                                         'values':
                                             f'''
                                             configInline:
@@ -144,7 +144,7 @@ def save_k0sctl_config():
                                         'name': 'external-dns',
                                         'chartname': 'bitnami/external-dns',
                                         'version': '5.4.4',
-                                        'namespace': 'default',
+                                        'namespace': 'cluster-external-dns',
                                         'values':
                                             f'''
                                             logLevel: debug
@@ -164,9 +164,9 @@ def save_k0sctl_config():
                                     # see https://github.com/kubernetes/dashboard/blob/master/aio/deploy/helm-chart/kubernetes-dashboard/values.yaml
                                     {
                                         'name': 'kubernetes-dashboard',
-                                        'chartname': 'k8s-dashboard/kubernetes-dashboard',
+                                        'chartname': 'kubernetes-dashboard/kubernetes-dashboard',
                                         'version': '5.0.0',
-                                        'namespace': 'default',
+                                        'namespace': 'cluster-dashboard',
                                         'values':
                                             f'''
                                             ingress:
@@ -248,7 +248,7 @@ bash /vagrant/provision-haproxy-config.sh \
   "$haproxy_sa_ca_path"
 
 # expose the traefik dashboard at http://traefik.k0s.test.
-kubectl apply -f - <<EOF
+kubectl apply -n cluster-traefik -f - <<EOF
 ---
 apiVersion: traefik.containo.us/v1alpha1
 kind: IngressRoute
@@ -289,13 +289,13 @@ EOF
 # create the admin user for use in the kubernetes-dashboard.
 # see https://github.com/kubernetes/dashboard/wiki/Creating-sample-user
 # see https://github.com/kubernetes/dashboard/wiki/Access-control
-kubectl apply -f - <<'EOF'
+kubectl apply -n cluster-dashboard -f - <<'EOF'
 ---
 apiVersion: v1
 kind: ServiceAccount
 metadata:
   name: admin
-  namespace: default
+  namespace: cluster-dashboard
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
@@ -308,13 +308,13 @@ roleRef:
 subjects:
   - kind: ServiceAccount
     name: admin
-    namespace: default
+    namespace: cluster-dashboard
 EOF
 # save the admin token.
 kubectl \
-    -n default \
+    -n cluster-dashboard \
     get secret \
-    $(kubectl -n default get secret | awk '/admin-token-/{print $1}') \
+    $(kubectl -n cluster-dashboard get secret | awk '/admin-token-/{print $1}') \
     -o json | jq -r .data.token | base64 --decode \
     >/vagrant/shared/admin-token.txt
 

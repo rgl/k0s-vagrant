@@ -67,8 +67,8 @@ kubectl get --all-namespaces charts # aka charts.helm.k0sproject.io
 title 'addresses'
 example_app_url="http://$(kubectl get ingress example-app -o json | jq -r .spec.rules[].host)"
 #traefik_url="http://$(kubectl get service -l app.kubernetes.io/name=traefik -o json | jq -r .items[].status.loadBalancer.ingress[].ip)/dashboard/"
-traefik_url="http://$(kubectl get ingress traefik -o json | jq -r .spec.rules[].host)"
-kubernetes_dashboard_url="https://$(kubectl get ingress -l app.kubernetes.io/name=kubernetes-dashboard -o json | jq -r .items[].spec.rules[].host)"
+traefik_url="http://$(kubectl -n cluster-traefik get ingress traefik -o json | jq -r .spec.rules[].host)"
+kubernetes_dashboard_url="https://$(kubectl -n cluster-dashboard get ingress -l app.kubernetes.io/name=kubernetes-dashboard -o json | jq -r .items[].spec.rules[].host)"
 python3 <<EOF
 from tabulate import tabulate
 

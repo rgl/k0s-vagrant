@@ -64,10 +64,38 @@ kubectl access-matrix --namespace default
 # show installed helm charts.
 kubectl get --all-namespaces charts # aka charts.helm.k0sproject.io
 
+# show the ingress ca certificate.
+title 'ingress ca certificate'
+kubectl \
+    -n cert-manager \
+    get secret \
+    ingress-tls \
+    -o json \
+    | jq -r '.data."tls.crt"' \
+    | base64 --decode \
+    | openssl x509 -noout -text -in -
+
+# show the traefik certificate.
+title 'traefik certificate'
+kubectl \
+    -n cluster-traefik \
+    get secret \
+    traefik-tls \
+    -o json \
+    | jq -r '.data."tls.crt"' \
+    | base64 --decode \
+    | openssl x509 -noout -text -in -
+
+# show the returned traefik site certificate.
+title 'traefik site certificate'
+traefik_host="$(kubectl -n cluster-traefik get ingress traefik -o json | jq -r .spec.rules[].host)"
+openssl s_client -connect $traefik_host:443 -servername $traefik_host </dev/null
+openssl s_client -connect $traefik_host:443 -servername $traefik_host </dev/null 2>/dev/null | openssl x509 -noout -text
+
 title 'addresses'
-example_app_url="http://$(kubectl get ingress example-app -o json | jq -r .spec.rules[].host)"
+example_app_url="https://$(kubectl get ingress example-app -o json | jq -r .spec.rules[].host)"
 #traefik_url="http://$(kubectl get service -l app.kubernetes.io/name=traefik -o json | jq -r .items[].status.loadBalancer.ingress[].ip)/dashboard/"
-traefik_url="http://$(kubectl -n cluster-traefik get ingress traefik -o json | jq -r .spec.rules[].host)"
+traefik_url="https://$(kubectl -n cluster-traefik get ingress traefik -o json | jq -r .spec.rules[].host)"
 kubernetes_dashboard_url="https://$(kubectl -n cluster-dashboard get ingress -l app.kubernetes.io/name=kubernetes-dashboard -o json | jq -r .items[].spec.rules[].host)"
 python3 <<EOF
 from tabulate import tabulate

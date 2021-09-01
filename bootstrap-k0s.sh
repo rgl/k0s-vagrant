@@ -177,6 +177,8 @@ def save_k0sctl_config():
                                               enabled: true
                                               hosts:
                                                 - kubernetes-dashboard.{config['pandoraFqdn'].split('.', 1)[-1]}
+                                              tls:
+                                                - secretName: kubernetes-dashboard-tls
                                             service:
                                               externalPort: 80
                                             protocolHttp: true
@@ -219,6 +221,7 @@ k0sctl apply --config /vagrant/shared/k0sctl.yaml
 
 # save the kubectl configuration.
 install -d -m 700 ~/.kube
+install -m 600 /dev/null ~/.kube/config
 k0sctl kubeconfig --config /vagrant/shared/k0sctl.yaml >~/.kube/config
 cp ~/.kube/config /vagrant/shared/kubeconfig
 export KUBECONFIG=~/.kube/config
@@ -251,8 +254,100 @@ bash /vagrant/provision-haproxy-config.sh \
   "$haproxy_sa_token_path" \
   "$haproxy_sa_ca_path"
 
-# expose the traefik dashboard at http://traefik.k0s.test.
+# provision cert-manager.
+# NB YOU MUST INSTALL CERT-MANAGER TO THE cert-manager NAMESPACE. the CRDs have it hard-coded.
+# NB YOU CANNOT INSTALL MULTIPLE INSTANCES OF CERT-MANAGER IN A CLUSTER.
+# NB this cannot be done from k0sctl.yaml because it needs the CRDs to be installaled separately.
+# see https://artifacthub.io/packages/helm/cert-manager/cert-manager
+# see https://github.com/jetstack/cert-manager/tree/master/deploy/charts/cert-manager
+# see https://cert-manager.io/docs/installation/supported-releases/
+# see https://cert-manager.io/docs/configuration/selfsigned/#bootstrapping-ca-issuers
+# see https://cert-manager.io/docs/usage/ingress/
+cert_manager_version='v1.5.3'
+helm repo add jetstack https://charts.jetstack.io
+helm repo update
+kubectl apply -f "https://github.com/jetstack/cert-manager/releases/download/$cert_manager_version/cert-manager.crds.yaml"
+helm install cert-manager \
+  --namespace cert-manager \
+  --version "$cert_manager_version" \
+  --create-namespace \
+  --wait \
+  jetstack/cert-manager
+kubectl apply -f - <<'EOF'
+---
+# see https://cert-manager.io/docs/reference/api-docs/#cert-manager.io/v1.ClusterIssuer
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+  name: selfsigned
+spec:
+  selfSigned: {}
+---
+# see https://cert-manager.io/docs/reference/api-docs/#cert-manager.io/v1.Certificate
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: ingress
+  namespace: cert-manager
+spec:
+  isCA: true
+  subject:
+    organizations:
+      - Example
+    organizationalUnits:
+      - Kubernetes
+  commonName: Kubernetes Ingress
+  privateKey:
+    algorithm: ECDSA # NB Ed25519 is not yet supported by chrome 93 or firefox 91.
+    size: 256
+  duration: 8h # NB this is so low for testing purposes. default is 2160h (90 days).
+  secretName: ingress-tls
+  issuerRef:
+    name: selfsigned
+    kind: ClusterIssuer
+    group: cert-manager.io
+---
+# see https://cert-manager.io/docs/reference/api-docs/#cert-manager.io/v1.ClusterIssuer
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+  name: ingress
+spec:
+  ca:
+    secretName: ingress-tls
+EOF
+
+# wait for all the helm charts to be available.
+jq -r '.spec.k0s.config.spec.extensions.helm.charts[] | [.namespace, .name] | @tsv' /vagrant/shared/k0sctl.yaml | while read namespace name; do
+  echo "Waiting for helm release $namespace $name to be deployed..."
+  while [ -z "$(helm ls -n "$namespace" -o json | jq -r '.[] | select(.status == "deployed")')" ]; do sleep 5; done
+done
+
+# expose the traefik dashboard at http://traefik.k0s.test and https://traefik.k0s.test.
 kubectl apply -n cluster-traefik -f - <<EOF
+---
+# see https://cert-manager.io/docs/reference/api-docs/#cert-manager.io/v1.Certificate
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: traefik
+spec:
+  subject:
+    organizations:
+      - Example
+    organizationalUnits:
+      - Kubernetes
+  commonName: Traefik Dashboard
+  dnsNames:
+    - traefik.$domain
+  duration: 1h # NB this is so low for testing purposes.
+  privateKey:
+    algorithm: ECDSA # NB Ed25519 is not yet supported by chrome 93 or firefox 91.
+    size: 256
+  secretName: traefik-tls
+  issuerRef:
+    kind: ClusterIssuer
+    name: ingress
 ---
 apiVersion: traefik.containo.us/v1alpha1
 kind: IngressRoute
@@ -260,7 +355,9 @@ metadata:
   name: traefik
 spec:
   entryPoints:
-    - web
+    - websecure
+  tls:
+    secretName: traefik-tls
   routes:
     - match: Host("traefik.$domain")
       kind: Rule
@@ -288,6 +385,33 @@ spec:
     #    ingress rule.
     #    see https://github.com/kubernetes-incubator/external-dns
     - host: traefik.$domain
+EOF
+
+# create the kubernetes-dashboard ingress tls certificate.
+kubectl apply -n cluster-dashboard -f - <<EOF
+---
+# see https://cert-manager.io/docs/reference/api-docs/#cert-manager.io/v1.Certificate
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: kubernetes-dashboard
+spec:
+  subject:
+    organizations:
+      - Example
+    organizationalUnits:
+      - Kubernetes
+  commonName: kubernetes-dashboard
+  dnsNames:
+    - kubernetes-dashboard.$domain
+  duration: 1h # NB this is so low for testing purposes.
+  privateKey:
+    algorithm: ECDSA # NB Ed25519 is not yet supported by chrome 93 or firefox 91.
+    size: 256
+  secretName: kubernetes-dashboard-tls
+  issuerRef:
+    kind: ClusterIssuer
+    name: ingress
 EOF
 
 # create the admin user for use in the kubernetes-dashboard.

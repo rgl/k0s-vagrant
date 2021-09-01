@@ -104,6 +104,10 @@ def save_k0sctl_config():
                                               # enable the access logs.
                                               access:
                                                 enabled: true
+                                            # disable pilot.
+                                            pilot:
+                                              enabled: false
+                                              dashboard: false
                                             # disable the telemetry (this is done by emptying globalArguments) and
                                             # configure traefik to skip certificate validation.
                                             # NB this is needed to expose the k8s dashboard as an ingress at

@@ -70,14 +70,28 @@ table > tbody > tr:hover {
             {{- end}}
         </tbody>
     </table>
+    <table>
+        <caption>Request Headers</caption>
+        <tbody>
+            {{- range $header := .RequestHeaders}}
+			{{- range .Values }}
+            <tr>
+                <th>{{$header.Name}}</th>
+                <td>{{.}}</td>
+            </tr>
+            {{- end}}
+            {{- end}}
+        </tbody>
+    </table>
 </body>
 </html>
 `))
 
 type indexData struct {
-	Runtime     string
-	Hostname    string
-	Environment []nameValuePair
+	Runtime        string
+	Hostname       string
+	Environment    []nameValuePair
+	RequestHeaders headers
 }
 
 type nameValuePair struct {
@@ -90,6 +104,28 @@ type nameValuePairs []nameValuePair
 func (a nameValuePairs) Len() int           { return len(a) }
 func (a nameValuePairs) Swap(i, j int)      { a[i], a[j] = a[j], a[i] }
 func (a nameValuePairs) Less(i, j int) bool { return a[i].Name < a[j].Name }
+
+type header struct {
+	Name   string
+	Values []string
+}
+
+type headers []header
+
+func headersFromHttpHeaders(httpHeaders http.Header) headers {
+	result := make(headers, 0, len(httpHeaders))
+	for k := range httpHeaders {
+		result = append(result, header{
+			Name:   k,
+			Values: httpHeaders[k],
+		})
+	}
+	return result
+}
+
+func (a headers) Len() int           { return len(a) }
+func (a headers) Swap(i, j int)      { a[i], a[j] = a[j], a[i] }
+func (a headers) Less(i, j int) bool { return strings.ToLower(a[i].Name) < strings.ToLower(a[j].Name) }
 
 func main() {
 	log.SetFlags(0)
@@ -140,12 +176,16 @@ func main() {
 		}
 		sort.Sort(nameValuePairs(environment))
 
+		headers := headersFromHttpHeaders(r.Header)
+		sort.Sort(headers)
+
 		w.Header().Set("Content-Type", "text/html")
 
 		err = indexTemplate.ExecuteTemplate(w, "Index", indexData{
-			Runtime:     runtime.Version(),
-			Hostname:    hostname,
-			Environment: environment,
+			Runtime:        runtime.Version(),
+			Hostname:       hostname,
+			Environment:    environment,
+			RequestHeaders: headers,
 		})
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)

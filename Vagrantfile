@@ -11,7 +11,7 @@ CONFIG_CONTROLLER_IP_ADDRESSES = generate_ip_addresses('10.10.0.10', CONFIG_CONT
 CONFIG_WORKER_IP_ADDRESSES = generate_ip_addresses('10.10.0.15', CONFIG_WORKER_COUNT)
 CONFIG_METALLB_IP_ADDRESSES = '10.10.0.100-10.10.0.150'
 CONFIG_DOCKER_VERSION = '20.10.8' # NB execute apt-cache madison docker-ce to known the available versions.
-CONFIG_K0SCTL_VERSION = 'v0.10.0-beta.2' # see https://github.com/k0sproject/k0sctl/releases
+CONFIG_K0SCTL_VERSION = 'v0.10.0' # see https://github.com/k0sproject/k0sctl/releases
 CONFIG_K0S_VERSION = 'v1.21.3+k0s.0' # see https://github.com/k0sproject/k0s/releases
 CONFIG_KUBECTL_VERSION = CONFIG_K0S_VERSION.gsub(/v([\.\d]+).+/, '\1')
 CONFIG_K9S_VERSION = 'v0.24.15' # see https://github.com/derailed/k9s/releases
@@ -115,7 +115,7 @@ Vagrant.configure(2) do |config|
     config.vm.provision 'shell', path: 'provision-etcdctl.sh', args: [CONFIG_ETCDCTL_VERSION]
     config.vm.provision 'shell', path: 'provision-helm.sh', args: [CONFIG_HELM_VERSION]
     config.vm.provision 'shell', path: 'provision-go.sh'
-    config.vm.provision 'shell', path: 'provision-k0sctl-custom.sh'
+    #config.vm.provision 'shell', path: 'provision-k0sctl-custom.sh'
   end
 
   nodes.each do |type, name, fqdn, ip_address|

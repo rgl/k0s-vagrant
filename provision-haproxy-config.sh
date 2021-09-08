@@ -17,7 +17,7 @@ fi
 # configure haproxy as L4 TCP forwarding load balancer.
 # NB when boostrapping this ignores the backend servers certificates,
 #    after bootstrap, this properly verifies them.
-# see https://docs.k0sproject.io/v1.21.3+k0s.0/high-availability/#example-configuration-haproxy
+# see https://docs.k0sproject.io/v1.21.4+k0s.0/high-availability/#example-configuration-haproxy
 # see Bind and server options at https://cbonte.github.io/haproxy-dconv/1.8/configuration.html#5
 # see https://cbonte.github.io/haproxy-dconv/1.8/configuration.html#4.2-bind
 # see https://cbonte.github.io/haproxy-dconv/1.8/configuration.html#4.2-server

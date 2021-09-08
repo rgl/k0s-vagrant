@@ -1,7 +1,7 @@
 #!/bin/bash
 source /vagrant/lib.sh
 
-kubernetes_version="${1:-1.21.3}"; shift || true
+kubernetes_version="${1:-1.21.4}"; shift || true
 krew_version="${1:-v0.4.1}"; shift || true # NB see https://github.com/kubernetes-sigs/krew
 
 # see https://kubernetes.io/docs/tasks/tools/install-kubectl-linux/#install-using-native-package-management

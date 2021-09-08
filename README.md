@@ -33,6 +33,7 @@ You can access the example cluster from the host with, e.g.:
 export KUBECONFIG=$PWD/shared/kubeconfig
 kubectl version --short
 kubectl cluster-info
+kubectl get nodes -o wide # NB by design, no controller node is displayed.
 kubectl api-versions
 kubectl api-resources -o wide
 kubectl get namespaces

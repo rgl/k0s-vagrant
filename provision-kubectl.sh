@@ -2,7 +2,7 @@
 source /vagrant/lib.sh
 
 kubernetes_version="${1:-1.22.2}"; shift || true
-krew_version="${1:-v0.4.1}"; shift || true # NB see https://github.com/kubernetes-sigs/krew
+krew_version="${1:-v0.4.2}"; shift || true # NB see https://github.com/kubernetes-sigs/krew
 
 # see https://kubernetes.io/docs/tasks/tools/install-kubectl-linux/#install-using-native-package-management
 wget -qO /usr/share/keyrings/kubernetes-archive-keyring.gpg https://packages.cloud.google.com/apt/doc/apt-key.gpg
@@ -17,7 +17,7 @@ cp /usr/bin/kubectl /vagrant/shared
 # install the krew kubectl package manager.
 echo "installing the krew $krew_version kubectl package manager..."
 apt-get install -y --no-install-recommends git
-wget -qO- "https://github.com/kubernetes-sigs/krew/releases/download/$krew_version/krew.tar.gz" | tar xzf - ./krew-linux_amd64
+wget -qO- "https://github.com/kubernetes-sigs/krew/releases/download/$krew_version/krew-linux_amd64.tar.gz" | tar xzf - ./krew-linux_amd64
 wget -q "https://github.com/kubernetes-sigs/krew/releases/download/$krew_version/krew.yaml"
 ./krew-linux_amd64 install --manifest=krew.yaml
 rm krew-linux_amd64

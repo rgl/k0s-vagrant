@@ -16,8 +16,8 @@ bash /vagrant/provision-haproxy-config.sh \
   "$(jq -r '.nodes[] | select(.type == "controller") | .ipAddress' /vagrant/shared/config.json | tr '\n' ',' | sed -E 's/,$//g')"
 
 # generate the k0sctl.yaml configuration file.
-# see https://docs.k0sproject.io/v1.21.4+k0s.0/k0sctl-install/
-# see https://docs.k0sproject.io/v1.21.4+k0s.0/configuration/
+# see https://docs.k0sproject.io/v1.22.2+k0s.2/k0sctl-install/
+# see https://docs.k0sproject.io/v1.22.2+k0s.2/configuration/
 python3 <<'EOF'
 import json
 
@@ -69,11 +69,11 @@ def save_k0sctl_config():
                                     # see https://artifacthub.io/packages/helm/traefik/traefik
                                     # see https://github.com/traefik/traefik-helm-chart
                                     # see https://github.com/traefik/traefik-helm-chart/blob/master/traefik/values.yaml
-                                    # see https://docs.k0sproject.io/v1.21.4+k0s.0/examples/traefik-ingress/
+                                    # see https://docs.k0sproject.io/v1.22.2+k0s.2/examples/traefik-ingress/
                                     {
                                         'name': 'traefik',
                                         'chartname': 'traefik/traefik',
-                                        'version': '10.3.2',
+                                        'version': '10.6.0',
                                         'namespace': 'cluster-traefik',
                                         'values':
                                             '''
@@ -129,7 +129,7 @@ def save_k0sctl_config():
                                     {
                                         'name': 'metallb',
                                         'chartname': 'bitnami/metallb',
-                                        'version': '2.5.4',
+                                        'version': '2.5.10',
                                         'namespace': 'cluster-metallb',
                                         'values':
                                             f'''
@@ -147,7 +147,7 @@ def save_k0sctl_config():
                                     {
                                         'name': 'external-dns',
                                         'chartname': 'bitnami/external-dns',
-                                        'version': '5.4.4',
+                                        'version': '5.4.15',
                                         'namespace': 'cluster-external-dns',
                                         'values':
                                             f'''
@@ -169,7 +169,7 @@ def save_k0sctl_config():
                                     {
                                         'name': 'kubernetes-dashboard',
                                         'chartname': 'kubernetes-dashboard/kubernetes-dashboard',
-                                        'version': '5.0.0',
+                                        'version': '5.0.4',
                                         'namespace': 'cluster-dashboard',
                                         'values':
                                             f'''
@@ -263,7 +263,7 @@ bash /vagrant/provision-haproxy-config.sh \
 # see https://cert-manager.io/docs/installation/supported-releases/
 # see https://cert-manager.io/docs/configuration/selfsigned/#bootstrapping-ca-issuers
 # see https://cert-manager.io/docs/usage/ingress/
-cert_manager_version='v1.5.3'
+cert_manager_version='v1.6.0'
 helm repo add jetstack https://charts.jetstack.io
 helm repo update
 kubectl apply -f "https://github.com/jetstack/cert-manager/releases/download/$cert_manager_version/cert-manager.crds.yaml"
@@ -475,7 +475,7 @@ ssh controller1 etcdctl \
 
 # show the nodes.
 # NB the controller nodes do not appear in this list.
-# see https://docs.k0sproject.io/v1.21.4+k0s.0/FAQ/#why-doesnt-kubectl-get-nodes-list-the-k0s-controllers
+# see https://docs.k0sproject.io/v1.22.2+k0s.2/FAQ/#why-doesnt-kubectl-get-nodes-list-the-k0s-controllers
 kubectl get nodes -o wide
 
 # add the custom registry to the default service account (in the default namespace).

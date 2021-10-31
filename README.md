@@ -1,6 +1,6 @@
 # About
 
-This is a [HA k0s kubernetes cluster](https://docs.k0sproject.io/v1.21.4+k0s.0/high-availability/) wrapped in a vagrant environment.
+This is a [HA k0s kubernetes cluster](https://docs.k0sproject.io/v1.22.2+k0s.2/high-availability/) wrapped in a vagrant environment.
 
 ## Usage
 
@@ -191,7 +191,7 @@ To capture a pod traffic:
 
 * Controller nodes
   * They do not run the `kubelet` nor a container runtime like containerd.
-    * This means [`kubectl get nodes` only returns the worker nodes](https://docs.k0sproject.io/v1.21.4+k0s.0/FAQ/#why-doesnt-kubectl-get-nodes-list-the-k0s-controllers).
+    * This means [`kubectl get nodes` only returns the worker nodes](https://docs.k0sproject.io/v1.22.2+k0s.2/FAQ/#why-doesnt-kubectl-get-nodes-list-the-k0s-controllers).
     * Instead they use the `k0s` process supervisor to launch the daemons as naked processes.
 
 ## References

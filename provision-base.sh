@@ -119,3 +119,6 @@ apt-get install -y iptables
 
 # install tcpdump.
 apt-get install -y tcpdump
+
+# install curl.
+apt-get install -y curl

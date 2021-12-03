@@ -129,7 +129,7 @@ def save_k0sctl_config():
                                     {
                                         'name': 'metallb',
                                         'chartname': 'bitnami/metallb',
-                                        'version': '2.5.10',
+                                        'version': '2.5.13', # installs metallb 0.11.0.
                                         'namespace': 'cluster-metallb',
                                         'values':
                                             f'''

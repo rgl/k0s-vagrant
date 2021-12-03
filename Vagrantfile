@@ -18,6 +18,7 @@ CONFIG_K9S_VERSION = 'v0.25.7' # see https://github.com/derailed/k9s/releases
 CONFIG_KREW_VERSION = 'v0.4.2' # see https://github.com/kubernetes-sigs/krew/releases
 CONFIG_ETCDCTL_VERSION = 'v3.5.1' # see https://github.com/etcd-io/etcd/releases BUT make sure you use the same version as k0s.
 CONFIG_HELM_VERSION = 'v3.7.1' # see https://github.com/helm/helm/releases BUT make sure you use the same version as k0s.
+CONFIG_HELMFILE_VERSION = 'v0.142.0' # see https://github.com/roboll/helmfile/releases
 
 hosts = """
 127.0.0.1	localhost
@@ -114,6 +115,7 @@ Vagrant.configure(2) do |config|
     config.vm.provision 'shell', path: 'provision-k9s.sh', args: [CONFIG_K9S_VERSION]
     config.vm.provision 'shell', path: 'provision-etcdctl.sh', args: [CONFIG_ETCDCTL_VERSION]
     config.vm.provision 'shell', path: 'provision-helm.sh', args: [CONFIG_HELM_VERSION]
+    config.vm.provision 'shell', path: 'provision-helmfile.sh', args: [CONFIG_HELMFILE_VERSION]
     config.vm.provision 'shell', path: 'provision-go.sh'
     #config.vm.provision 'shell', path: 'provision-k0sctl-custom.sh'
   end

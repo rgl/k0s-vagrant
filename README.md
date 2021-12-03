@@ -82,9 +82,9 @@ sudo -i
 
 # get a docker container dns resolver configuration. must return the pandora dns
 # nameserver 10.10.0.2.
-docker run -it --rm --name test busybox cat /etc/resolv.conf
+docker run -it --rm --name test busybox:1.34 cat /etc/resolv.conf
 # resolve a internet domain.
-docker run -it --rm --name test busybox nslookup -type=a ruilopes.com
+docker run -it --rm --name test busybox:1.34 nslookup -type=a ruilopes.com
 
 # get a k8s container dns resolver configuration. it must return the cluster
 # kube-dns service cluster ip address. something alike:
@@ -92,7 +92,7 @@ docker run -it --rm --name test busybox nslookup -type=a ruilopes.com
 #   nameserver 10.96.0.10
 #   options ndots:5
 # see https://kubernetes.io/docs/tasks/administer-cluster/dns-debugging-resolution/
-kubectl run -it --rm --restart=Never busybox --image=busybox:1.33 -- cat /etc/resolv.conf
+kubectl run -it --rm --restart=Never busybox --image=busybox:1.34 -- cat /etc/resolv.conf
 # resolve a internet domain. must return something alike:
 #   Server:		10.96.0.10
 #   Address:	10.96.0.10:53
@@ -101,13 +101,13 @@ kubectl run -it --rm --restart=Never busybox --image=busybox:1.33 -- cat /etc/re
 #   Address: 172.67.174.199
 #   Name:	ruilopes.com
 #   Address: 104.21.67.125
-kubectl run -it --rm --restart=Never busybox --image=busybox:1.33 -- nslookup -type=a ruilopes.com
+kubectl run -it --rm --restart=Never busybox --image=busybox:1.34 -- nslookup -type=a ruilopes.com
 # resolve a cluster external-dns managed domain. must return something alike:
 #   Server:		10.96.0.10
 #   Address:	10.96.0.10:53
 #   Name:	traefik.k0s.test
 #   Address: 10.10.0.100
-kubectl run -it --rm --restart=Never busybox --image=busybox:1.33 -- nslookup -type=a traefik.k0s.test
+kubectl run -it --rm --restart=Never busybox --image=busybox:1.34 -- nslookup -type=a traefik.k0s.test
 ```
 
 ## Host DNS resolver

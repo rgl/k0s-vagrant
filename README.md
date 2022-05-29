@@ -1,6 +1,6 @@
 # About
 
-This is a [HA k0s kubernetes cluster](https://docs.k0sproject.io/v1.22.4+k0s.1/high-availability/) wrapped in a vagrant environment.
+This is a [HA k0s kubernetes cluster](https://docs.k0sproject.io/v1.23.6+k0s.1/high-availability/) wrapped in a vagrant environment.
 
 ## Usage
 
@@ -25,7 +25,9 @@ The docker registry is at https://pandora.k0s.test:5000.
 
 The apt-cacher is at http://pandora.k0s.test:3142/acng-report.html (click the "Count Data" button to see the cache statistics).
 
-The traefik ingress dashboard is at http://traefik.k0s.test.
+The traefik ingress dashboard is at https://traefik.k0s.test.
+
+An example application is at https://example-app.k0s.test.
 
 You can access the example cluster from the host with, e.g.:
 
@@ -191,10 +193,11 @@ To capture a pod traffic:
 
 * Controller nodes
   * They do not run the `kubelet` nor a container runtime like containerd.
-    * This means [`kubectl get nodes` only returns the worker nodes](https://docs.k0sproject.io/v1.22.4+k0s.1/FAQ/#why-doesnt-kubectl-get-nodes-list-the-k0s-controllers).
+    * This means [`kubectl get nodes` only returns the worker nodes](https://docs.k0sproject.io/v1.23.6+k0s.1/FAQ/#why-doesnt-kubectl-get-nodes-list-the-k0s-controllers).
     * Instead they use the `k0s` process supervisor to launch the daemons as naked processes.
 
 ## References
 
 * https://docs.k0sproject.io
 * https://kubernetes.io/docs/reference/kubectl/cheatsheet/
+* https://learnk8s.io/production-best-practices

@@ -1,10 +1,10 @@
-FROM golang:1.17-bullseye AS build
+FROM golang:1.18-bullseye AS build
 WORKDIR /build
 COPY go.* .
 RUN go mod download
 COPY *.go .
 RUN CGO_ENABLED=0 go build -ldflags="-s"
 
-FROM debian:buster-slim
+FROM debian:bullseye-slim
 COPY --from=build /build/example-app /app/
 ENTRYPOINT ["/app/example-app"]

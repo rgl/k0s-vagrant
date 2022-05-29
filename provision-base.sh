@@ -111,8 +111,12 @@ if [ ! -f ~/.ssh/authorized_keys ]; then
 fi
 
 # trust the pandora example ca.
-cp /vagrant/shared/tls/example-ca/example-ca-crt.pem /usr/local/share/ca-certificates/example-ca.crt
-update-ca-certificates -v
+# NB this step is skipped in the pandora box; this file is created later
+#    in provision-certificate.sh.
+if [ -f /vagrant/shared/tls/example-ca/example-ca-crt.pem ]; then
+    cp /vagrant/shared/tls/example-ca/example-ca-crt.pem /usr/local/share/ca-certificates/example-ca.crt
+    update-ca-certificates -v
+fi
 
 # install iptables.
 apt-get install -y iptables

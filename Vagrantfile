@@ -98,8 +98,8 @@ Vagrant.configure(2) do |config|
       vb.memory = 1*1024
     end
     config.vm.hostname = CONFIG_PANDORA_FQDN
-    config.vm.network :private_network, ip: CONFIG_PANDORA_IP_ADDRESS, libvirt__forward_mode: 'route', libvirt__dhcp_enabled: false
-    config.vm.network :private_network, ip: CONFIG_CONTROLLER_IP_ADDRESS, libvirt__forward_mode: 'route', libvirt__dhcp_enabled: false
+    config.vm.network :private_network, ip: CONFIG_PANDORA_IP_ADDRESS, libvirt__forward_mode: 'none', libvirt__dhcp_enabled: false
+    config.vm.network :private_network, ip: CONFIG_CONTROLLER_IP_ADDRESS, libvirt__forward_mode: 'none', libvirt__dhcp_enabled: false
     config.vm.provision 'shell', inline: 'echo "$1" >/etc/hosts', args: [hosts]
     config.vm.provision 'shell', path: 'provision-apt-cacher.sh'
     config.vm.provision 'shell', path: 'provision-base.sh', args: [CONFIG_PANDORA_FQDN]
@@ -129,7 +129,7 @@ Vagrant.configure(2) do |config|
         vb.memory = 1*1024
       end
       config.vm.hostname = fqdn
-      config.vm.network :private_network, ip: ip_address, libvirt__forward_mode: 'route', libvirt__dhcp_enabled: false
+      config.vm.network :private_network, ip: ip_address, libvirt__forward_mode: 'none', libvirt__dhcp_enabled: false
       config.vm.provision 'shell', path: 'provision-base.sh', args: [CONFIG_PANDORA_FQDN, CONFIG_PANDORA_IP_ADDRESS]
       config.vm.provision 'shell', path: 'provision-dns-client.sh', args: [CONFIG_PANDORA_IP_ADDRESS]
       if type == 'controller'

@@ -99,16 +99,25 @@ spec:
               memory: 20Mi
               cpu: "0.1"
           env:
-            # see https://github.com/kubernetes/kubernetes/blob/master/test/e2e/common/downward_api.go
-            - name: POD_UID
+            # see https://kubernetes.io/docs/tasks/inject-data-application/environment-variable-expose-pod-information/
+            # see https://github.com/kubernetes/kubernetes/blob/v1.23.6/test/e2e/common/node/downwardapi.go
+            - name: EXAMPLE_NODE_NAME
               valueFrom:
                 fieldRef:
-                  fieldPath: metadata.uid
-            - name: POD_NAME
-              valueFrom:
-                fieldRef:
-                  fieldPath: metadata.name
-            - name: POD_NAMESPACE
+                  fieldPath: spec.nodeName
+            - name: EXAMPLE_POD_NAMESPACE
               valueFrom:
                 fieldRef:
                   fieldPath: metadata.namespace
+            - name: EXAMPLE_POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: EXAMPLE_POD_UID
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.uid
+            - name: EXAMPLE_POD_IP
+              valueFrom:
+                fieldRef:
+                  fieldPath: status.podIP

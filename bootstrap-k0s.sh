@@ -142,12 +142,12 @@ def save_k0sctl_config():
                                             ''',
                                     },
                                     # see https://artifacthub.io/packages/helm/bitnami/external-dns
-                                    # see https://github.com/kubernetes-incubator/external-dns/blob/master/docs/tutorials/pdns.md
-                                    # see https://github.com/kubernetes-incubator/external-dns/blob/master/docs/initial-design.md
+                                    # see https://github.com/kubernetes-sigs/external-dns/blob/master/docs/tutorials/pdns.md
+                                    # see https://github.com/kubernetes-sigs/external-dns/blob/master/docs/initial-design.md
                                     {
                                         'name': 'external-dns',
                                         'chartname': 'bitnami/external-dns',
-                                        'version': '6.5.1', # installs external-dns 0.12.0.
+                                        'version': '6.5.6', # installs external-dns 0.12.0.
                                         'namespace': 'cluster-external-dns',
                                         'values':
                                             f'''
@@ -383,7 +383,7 @@ spec:
     # NB due to the external-dns controller this will automatically configure
     #    the external DNS server (installed in the pandora box) based on this
     #    ingress rule.
-    #    see https://github.com/kubernetes-incubator/external-dns
+    #    see https://github.com/kubernetes-sigs/external-dns
     - host: traefik.$domain
 EOF
 

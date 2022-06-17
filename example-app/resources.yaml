@@ -35,7 +35,7 @@ spec:
     # NB due to the external-dns controller this will automatically configure
     #    the external DNS server (installed in the pandora box) based on this
     #    ingress rule.
-    #    see https://github.com/kubernetes-incubator/external-dns
+    #    see https://github.com/kubernetes-sigs/external-dns
     - host: example-app.k0s.test
       http:
         paths:
@@ -49,8 +49,8 @@ spec:
 ---
 # see https://kubernetes.io/docs/concepts/services-networking/service/
 # see https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.22/#service-v1-core
-# see https://github.com/kubernetes-incubator/external-dns/blob/v0.5.16/docs/initial-design.md
-# see https://github.com/kubernetes-incubator/external-dns/blob/v0.5.16/docs/ttl.md
+# see https://github.com/kubernetes-sigs/external-dns/blob/v0.12.0/docs/initial-design.md
+# see https://github.com/kubernetes-sigs/external-dns/blob/v0.12.0/docs/ttl.md
 apiVersion: v1
 kind: Service
 metadata:

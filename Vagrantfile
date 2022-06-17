@@ -16,8 +16,8 @@ CONFIG_K0S_VERSION = 'v1.23.6+k0s.2' # see https://github.com/k0sproject/k0s/rel
 CONFIG_KUBECTL_VERSION = CONFIG_K0S_VERSION.gsub(/v([\.\d]+).+/, '\1')
 CONFIG_K9S_VERSION = 'v0.25.18' # see https://github.com/derailed/k9s/releases
 CONFIG_KREW_VERSION = 'v0.4.3' # see https://github.com/kubernetes-sigs/krew/releases
-CONFIG_ETCDCTL_VERSION = 'v3.5.4' # see https://github.com/etcd-io/etcd/releases BUT make sure you use the same version as k0s.
-CONFIG_HELM_VERSION = 'v3.9.0' # see https://github.com/helm/helm/releases BUT make sure you use the same version as k0s.
+CONFIG_ETCDCTL_VERSION = 'v3.5.4' # see https://github.com/etcd-io/etcd/releases BUT make sure you use a version compatible with k0s go.mod.
+CONFIG_HELM_VERSION = 'v3.9.0' # see https://github.com/helm/helm/releases BUT make sure you use a version compatible with k0s go.mod.
 CONFIG_HELMFILE_VERSION = 'v0.144.0' # see https://github.com/roboll/helmfile/releases
 
 hosts = """

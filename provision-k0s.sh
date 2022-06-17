@@ -1,7 +1,7 @@
 #!/bin/bash
 source /vagrant/lib.sh
 
-config_k0s_version="${1:-v1.23.6+k0s.2}"; shift || true
+config_k0s_version="${1:-v1.23.7+k0s.0}"; shift || true
 
 # disable k0s telemetry.
 echo 'export DISABLE_TELEMETRY=true' >/etc/profile.d/disable-telemetry.sh

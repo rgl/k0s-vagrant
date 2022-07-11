@@ -16,8 +16,8 @@ bash /vagrant/provision-haproxy-config.sh \
   "$(jq -r '.nodes[] | select(.type == "controller") | .ipAddress' /vagrant/shared/config.json | tr '\n' ',' | sed -E 's/,$//g')"
 
 # generate the k0sctl.yaml configuration file.
-# see https://docs.k0sproject.io/v1.23.8+k0s.0/k0sctl-install/
-# see https://docs.k0sproject.io/v1.23.8+k0s.0/configuration/
+# see https://docs.k0sproject.io/v1.24.2+k0s.0/k0sctl-install/
+# see https://docs.k0sproject.io/v1.24.2+k0s.0/configuration/
 python3 <<'EOF'
 import json
 
@@ -69,7 +69,7 @@ def save_k0sctl_config():
                                     # see https://artifacthub.io/packages/helm/traefik/traefik
                                     # see https://github.com/traefik/traefik-helm-chart
                                     # see https://github.com/traefik/traefik-helm-chart/blob/master/traefik/values.yaml
-                                    # see https://docs.k0sproject.io/v1.23.8+k0s.0/examples/traefik-ingress/
+                                    # see https://docs.k0sproject.io/v1.24.2+k0s.0/examples/traefik-ingress/
                                     {
                                         'name': 'traefik',
                                         'chartname': 'traefik/traefik',
@@ -226,16 +226,25 @@ k0sctl kubeconfig --config /vagrant/shared/k0sctl.yaml >~/.kube/config
 cp ~/.kube/config /vagrant/shared/kubeconfig
 export KUBECONFIG=~/.kube/config
 
-# create the haproxy service account.
+# create the haproxy service account (and secret).
 # NB by default, any service account allowed to access the healthz endpoint.
-kubectl -n kube-system \
-    create serviceaccount \
-    haproxy \
-    --dry-run=client \
-    --output yaml \
-    | kubectl apply -f -
-haproxy_sa_secret_name="$(kubectl -n kube-system get serviceaccount haproxy -o json | jq -r '.secrets[].name')"
-haproxy_sa_secret_json="$(kubectl -n kube-system get secret "$haproxy_sa_secret_name" -o json)"
+# see https://kubernetes.io/docs/concepts/configuration/secret/#service-account-token-secrets
+kubectl apply -n kube-system -f - <<'EOF'
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: haproxy
+---
+apiVersion: v1
+kind: Secret
+type: kubernetes.io/service-account-token
+metadata:
+  name: haproxy
+  annotations:
+    kubernetes.io/service-account.name: haproxy
+EOF
+haproxy_sa_secret_json="$(kubectl -n kube-system get secret haproxy -o json)"
 haproxy_sa_token_path='/etc/haproxy/sa-token.txt'
 haproxy_sa_ca_path='/etc/haproxy/sa-ca.pem'
 install -m 600 /dev/null "$haproxy_sa_token_path"
@@ -423,7 +432,15 @@ apiVersion: v1
 kind: ServiceAccount
 metadata:
   name: admin
-  namespace: cluster-dashboard
+---
+# see https://kubernetes.io/docs/concepts/configuration/secret/#service-account-token-secrets
+apiVersion: v1
+kind: Secret
+type: kubernetes.io/service-account-token
+metadata:
+  name: admin
+  annotations:
+    kubernetes.io/service-account.name: admin
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
@@ -439,12 +456,10 @@ subjects:
     namespace: cluster-dashboard
 EOF
 # save the admin token.
-kubectl \
-    -n cluster-dashboard \
-    get secret \
-    $(kubectl -n cluster-dashboard get secret | awk '/admin-token-/{print $1}') \
-    -o json | jq -r .data.token | base64 --decode \
-    >/vagrant/shared/admin-token.txt
+kubectl -n cluster-dashboard get secret admin -o json \
+  | jq -r .data.token \
+  | base64 --decode \
+  >/vagrant/shared/admin-token.txt
 
 # wait for all the API services to be available.
 # NB without this, calls like kubectl api-versions will fail.
@@ -475,7 +490,7 @@ ssh controller1 etcdctl \
 
 # show the nodes.
 # NB the controller nodes do not appear in this list.
-# see https://docs.k0sproject.io/v1.23.8+k0s.0/FAQ/#why-doesnt-kubectl-get-nodes-list-the-k0s-controllers
+# see https://docs.k0sproject.io/v1.24.2+k0s.0/FAQ/#why-doesnt-kubectl-get-nodes-list-the-k0s-controllers
 kubectl get nodes -o wide
 
 # add the custom registry to the default service account (in the default namespace).

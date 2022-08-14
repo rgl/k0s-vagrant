@@ -129,17 +129,8 @@ def save_k0sctl_config():
                                     {
                                         'name': 'metallb',
                                         'chartname': 'bitnami/metallb',
-                                        'version': '3.0.10', # installs metallb 0.12.1.
-                                        'namespace': 'cluster-metallb',
-                                        'values':
-                                            f'''
-                                            configInline:
-                                              address-pools:
-                                                - name: default
-                                                  protocol: layer2
-                                                  addresses:
-                                                    - {config['metallbIpAddresses']}
-                                            ''',
+                                        'version': '4.0.2', # installs metallb 0.13.4.
+                                        'namespace': 'cluster-metallb'
                                     },
                                     # see https://artifacthub.io/packages/helm/bitnami/external-dns
                                     # see https://github.com/kubernetes-sigs/external-dns/blob/master/docs/tutorials/pdns.md
@@ -225,6 +216,32 @@ install -m 600 /dev/null ~/.kube/config
 k0sctl kubeconfig --config /vagrant/shared/k0sctl.yaml >~/.kube/config
 cp ~/.kube/config /vagrant/shared/kubeconfig
 export KUBECONFIG=~/.kube/config
+
+# configure metallb.
+bash -euo pipefail <<'EOF'
+while [ -z "$(helm ls -n cluster-metallb -o json | jq -r '.[] | select(.status == "deployed")')" ]; do sleep 5; done
+while ! kubectl get -n cluster-metallb service/metallb-webhook-service 2>&1 >/dev/null; do sleep 5; done
+EOF
+# NB we have to sit in a loop until the metallb-webhook-service endpoint is
+#    available. while its starting, it will fail with:
+#       Error from server (InternalError): error when creating "STDIN": Internal error occurred: failed calling webhook "ipaddresspoolvalidationwebhook.metallb.io": failed to call webhook: Post "https://metallb-webhook-service.cluster-metallb.svc:443/validate-metallb-io-v1beta1-ipaddresspool?timeout=10s": dial tcp 10.103.0.220:443: connect: connection refused
+metallb_ip_addresses="$(jq -r .metallbIpAddresses /vagrant/shared/config.json)"
+while ! kubectl apply -n cluster-metallb -f - <<EOF
+---
+apiVersion: metallb.io/v1beta1
+kind: IPAddressPool
+metadata:
+  name: default
+spec:
+  addresses:
+    - $metallb_ip_addresses
+---
+apiVersion: metallb.io/v1beta1
+kind: L2Advertisement
+metadata:
+  name: default
+EOF
+do sleep 5; done
 
 # create the haproxy service account (and secret).
 # NB by default, any service account allowed to access the healthz endpoint.

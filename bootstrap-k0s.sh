@@ -489,21 +489,17 @@ ssh-keyscan -H worker1 >>~/.ssh/known_hosts
 # show the controller1 node system information.
 ssh controller1 k0s sysinfo
 
-# show the etcd nodes.
-ssh controller1 etcdctl \
-    --cert /var/lib/k0s/pki/etcd/server.crt \
-    --key /var/lib/k0s/pki/etcd/server.key \
-    --cacert /var/lib/k0s/pki/etcd/ca.crt \
-    --write-out table \
-    member list
-
-# show the endpoint status.
-ssh controller1 etcdctl \
-    --cert /var/lib/k0s/pki/etcd/server.crt \
-    --key /var/lib/k0s/pki/etcd/server.key \
-    --cacert /var/lib/k0s/pki/etcd/ca.crt \
-    --write-out table \
-    endpoint status
+# show etcd information.
+function etcd-info {
+    ssh controller1 etcdctl \
+        --cert /var/lib/k0s/pki/etcd/server.crt \
+        --key /var/lib/k0s/pki/etcd/server.key \
+        --cacert /var/lib/k0s/pki/etcd/ca.crt \
+        --write-out table \
+        "$*"
+}
+etcd-info member list
+etcd-info endpoint status
 
 # show the nodes.
 # NB the controller nodes do not appear in this list.

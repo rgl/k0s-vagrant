@@ -28,6 +28,19 @@ ps-show-args controller1 konnectivity-server
 ps-show-args worker1 proxy-agent # aka konnectivity-agent
 ps-show-args worker1 kubelet
 
+# etcd info.
+function etcd-info {
+    ssh controller1 etcdctl \
+        --cert /var/lib/k0s/pki/etcd/server.crt \
+        --key /var/lib/k0s/pki/etcd/server.key \
+        --cacert /var/lib/k0s/pki/etcd/ca.crt \
+        --write-out table \
+        "$*"
+}
+etcd-info member list
+etcd-info endpoint status
+#etcd-info get / --prefix --keys-only --write-out simple | grep ^/
+
 # kubernetes info.
 kubectl version --short
 kubectl cluster-info

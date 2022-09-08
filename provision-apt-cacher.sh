@@ -1,6 +1,8 @@
 #!/bin/bash
 source /vagrant/lib.sh
 
+pandora_fqdn="${1:-pandora.k0s.test}"; shift || true
+
 # provision apt-cacher-ng.
 # see https://www.unix-ag.uni-kl.de/~bloch/acng/
 # see https://www.unix-ag.uni-kl.de/~bloch/acng/html/index.html
@@ -23,4 +25,8 @@ sed -i -E 's,^#(Remap-uburep.+),\1,' /etc/apt-cacher-ng/acng.conf
 # set the APT mirror that apt-cacher-ng uses.
 echo 'http://nl.archive.ubuntu.com/ubuntu/' >/etc/apt-cacher-ng/backends_ubuntu
 
+# restart apt-cacher-ng.
 systemctl restart apt-cacher-ng
+
+# wait for apt-cacher-ng to be available.
+bash -c "while ! wget -q --spider 'http://$pandora_fqdn:3142/acng-report.html'; do sleep 1; done;"

@@ -101,7 +101,7 @@ Vagrant.configure(2) do |config|
     config.vm.network :private_network, ip: CONFIG_PANDORA_IP_ADDRESS, libvirt__forward_mode: 'none', libvirt__dhcp_enabled: false
     config.vm.network :private_network, ip: CONFIG_CONTROLLER_IP_ADDRESS, libvirt__forward_mode: 'none', libvirt__dhcp_enabled: false
     config.vm.provision 'shell', inline: 'echo "$1" >/etc/hosts', args: [hosts]
-    config.vm.provision 'shell', path: 'provision-apt-cacher.sh'
+    config.vm.provision 'shell', path: 'provision-apt-cacher.sh', args: [CONFIG_PANDORA_FQDN]
     config.vm.provision 'shell', path: 'provision-base.sh', args: [CONFIG_PANDORA_FQDN]
     config.vm.provision 'shell', path: 'provision-certificate.sh', args: [CONFIG_PANDORA_FQDN]
     config.vm.provision 'shell', path: 'provision-dns-server.sh', args: [CONFIG_PANDORA_IP_ADDRESS, CONFIG_PANDORA_FQDN]

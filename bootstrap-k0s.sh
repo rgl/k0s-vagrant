@@ -138,7 +138,7 @@ def save_k0sctl_config():
                                     {
                                         'name': 'external-dns',
                                         'chartname': 'bitnami/external-dns',
-                                        'version': '6.7.5', # installs external-dns 0.12.2.
+                                        'version': '6.8.2', # installs external-dns 0.12.2.
                                         'namespace': 'cluster-external-dns',
                                         'values':
                                             f'''

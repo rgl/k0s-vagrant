@@ -129,7 +129,7 @@ def save_k0sctl_config():
                                     {
                                         'name': 'metallb',
                                         'chartname': 'bitnami/metallb',
-                                        'version': '4.1.2', # installs metallb 0.13.5.
+                                        'version': '4.1.7', # installs metallb 0.13.6.
                                         'namespace': 'cluster-metallb'
                                     },
                                     # see https://artifacthub.io/packages/helm/bitnami/external-dns

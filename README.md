@@ -61,7 +61,7 @@ kubectl proxy &
 
 And access the kubernetes dashboard at:
 
-  http://localhost:8001/api/v1/namespaces/kubernetes-dashboard/services/https:kubernetes-dashboard:/proxy/
+  http://localhost:8001/api/v1/namespaces/cluster-dashboard/services/http:kubernetes-dashboard:http/proxy/
 
 ## K9s Dashboard
 

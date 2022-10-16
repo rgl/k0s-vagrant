@@ -4,8 +4,8 @@ source /vagrant/lib.sh
 # install go.
 # see https://go.dev/dl/
 # see https://go.dev/doc/install
-artifact_url=https://go.dev/dl/go1.19.1.linux-amd64.tar.gz
-artifact_sha=acc512fbab4f716a8f97a8b3fbaa9ddd39606a28be6c2515ef7c6c6311acffde
+artifact_url=https://go.dev/dl/go1.19.2.linux-amd64.tar.gz
+artifact_sha=5e8c5a74fe6470dd7e055a461acda8bb4050ead8c2df70f227e3ff7d8eb7eeb6
 artifact_path="/tmp/$(basename $artifact_url)"
 wget -qO $artifact_path $artifact_url
 if [ "$(sha256sum $artifact_path | awk '{print $1}')" != "$artifact_sha" ]; then

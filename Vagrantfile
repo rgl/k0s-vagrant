@@ -18,7 +18,7 @@ CONFIG_K9S_VERSION = 'v0.26.6' # see https://github.com/derailed/k9s/releases
 CONFIG_KREW_VERSION = 'v0.4.3' # see https://github.com/kubernetes-sigs/krew/releases
 CONFIG_ETCDCTL_VERSION = 'v3.5.4' # see https://github.com/etcd-io/etcd/releases BUT make sure you use a version compatible with k0s go.mod.
 CONFIG_HELM_VERSION = 'v3.9.4' # see https://github.com/helm/helm/releases BUT make sure you use a version compatible with k0s go.mod.
-CONFIG_HELMFILE_VERSION = 'v0.144.0' # see https://github.com/roboll/helmfile/releases
+CONFIG_HELMFILE_VERSION = '0.147.0' # see https://github.com/helmfile/helmfile/releases
 
 hosts = """
 127.0.0.1	localhost

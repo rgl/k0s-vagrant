@@ -146,8 +146,6 @@ no-resolv
 bind-interfaces
 interface=lo
 listen-address=127.0.0.1
-# delegate the k0s.test zone to the pandora DNS server IP address.
-server=/k0s.test/10.10.0.2
 # delegate to the Cloudflare/APNIC Public DNS IP addresses.
 # NB iif there's no entry in /etc/hosts.
 server=1.1.1.1
@@ -156,6 +154,10 @@ server=1.0.0.1
 # NB iif there's no entry in /etc/hosts.
 #server=8.8.8.8
 #server=8.8.4.4
+EOF
+cat >/etc/dnsmasq.d/k0s.test.conf <<EOF
+# delegate the k0s.test zone to the pandora DNS server IP address.
+server=/k0s.test/10.10.0.2
 EOF
 rm /etc/resolv.conf
 cat >/etc/resolv.conf <<EOF

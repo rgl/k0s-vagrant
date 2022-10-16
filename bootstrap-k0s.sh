@@ -47,6 +47,11 @@ def save_k0sctl_config():
                                 config['controllerIpAddress'],
                             ],
                         },
+                        'network': {
+                            'kubeProxy': {
+                                'mode': 'ipvs',
+                            },
+                        },
                         'extensions': {
                             'helm': {
                                 'repositories': [

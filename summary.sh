@@ -41,6 +41,11 @@ etcd-info member list
 etcd-info endpoint status
 #etcd-info get / --prefix --keys-only --write-out simple | grep ^/
 
+# show services.
+kubectl get services --all-namespaces
+kubectl get endpoints --all-namespaces
+ssh worker1 ipvsadm --list --numeric
+
 # kubernetes info.
 kubectl version --short
 kubectl cluster-info

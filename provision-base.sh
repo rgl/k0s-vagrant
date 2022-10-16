@@ -126,3 +126,6 @@ apt-get install -y tcpdump
 
 # install curl.
 apt-get install -y curl
+
+# install ipvsadm.
+apt-get install -y ipvsadm

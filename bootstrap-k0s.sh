@@ -294,7 +294,7 @@ bash /vagrant/provision-haproxy-config.sh \
 # see https://cert-manager.io/docs/installation/supported-releases/
 # see https://cert-manager.io/docs/configuration/selfsigned/#bootstrapping-ca-issuers
 # see https://cert-manager.io/docs/usage/ingress/
-cert_manager_version='v1.9.1'
+cert_manager_version='v1.10.0'
 helm repo add jetstack https://charts.jetstack.io
 helm repo update
 kubectl apply -f "https://github.com/jetstack/cert-manager/releases/download/$cert_manager_version/cert-manager.crds.yaml"

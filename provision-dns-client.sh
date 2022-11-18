@@ -5,6 +5,13 @@ dns_server_ip_address="${1:-10.10.0.2}"; shift || true
 
 # change the dns resolver to use our dns server.
 if [ -d /etc/netplan ]; then
+  install -d /etc/systemd/resolved.conf.d
+  cat >/etc/systemd/resolved.conf.d/dns-servers.conf <<EOF
+[Resolve]
+DNS=$dns_server_ip_address
+Domains=~.
+EOF
+  systemctl restart systemd-resolved
   cat >/etc/netplan/01-netcfg.yaml <<EOF
 # This file describes the network interfaces available on your system
 # For more information, see netplan(5).
@@ -16,9 +23,6 @@ network:
       dhcp4: yes
       dhcp4-overrides:
         use-dns: false
-      nameservers:
-        addresses:
-          - $dns_server_ip_address
 EOF
   netplan apply
   # wait for the configuration to be applied by systemd-networkd.

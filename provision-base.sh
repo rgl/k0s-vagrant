@@ -1,6 +1,7 @@
 #!/bin/bash
 source /vagrant/lib.sh
 
+ubuntu_mirror="${1:-http://mirrors.ptisp.pt/ubuntu/}"; shift || true
 pandora_fqdn="${1:-pandora.k0s.test}"; shift || true
 pandora_ip_address="${1:-10.10.0.2}"; shift || true
 
@@ -13,17 +14,19 @@ export DEBIAN_FRONTEND=noninteractive
 ip link
 cat /sys/class/dmi/id/product_uuid
 
+# configure the ubuntu mirror.
+sed -i -E "s,(deb(-src)?) [^ ]+ ,\\1 $ubuntu_mirror ,g" /etc/apt/sources.list
+
 # configure APT to use our apt-cacher cache APT proxy.
-# NB we cannot use APT::Update::Pre-Invoke because that is invoked after sources.list is
-#    loaded, so we had to override the apt-get command with our own version.
-cat >/etc/apt/apt.conf.d/00aptproxy <<EOF
-Acquire::http::Proxy "http://$pandora_fqdn:3142";
-EOF
+# NB we cannot use APT::Update::Pre-Invoke in apt.confi because that is invoked
+#    after sources.list is loaded, so we had to override the apt-get command
+#    with our own version.
 cat >/usr/local/bin/apt-get <<EOF
 #!/bin/bash
 if [ "\$1" == 'update' ]; then
     for p in \$(find /etc/apt/sources.list /etc/apt/sources.list.d -type f); do
-        sed -i -E 's,(deb(-src)? .*)https://,\1http://$pandora_fqdn:3142/,g' \$p
+        sed -i -E '/http:\\/\\/$pandora_fqdn:3142/! s,(deb(-src)? .*)http://,\1http://$pandora_fqdn:3142/,g' \$p
+        sed -i -E '/http:\\/\\/$pandora_fqdn:3142/! s,(deb(-src)? .*)https://,\1http://$pandora_fqdn:3142/HTTPS///,g' \$p
     done
 fi
 exec /usr/bin/apt-get "\$@"
@@ -104,10 +107,14 @@ if [ "$(hostname)" == 'pandora' ]; then
     fi
 fi
 
-# trust the root ssh key.
+# trust the pandora root ssh key.
 if [ ! -f ~/.ssh/authorized_keys ]; then
     install -d -m 700 ~/.ssh
-    install -m 600 /vagrant/shared/ssh/id_rsa.pub ~/.ssh/authorized_keys
+    install -m 600 /dev/null ~/.ssh/authorized_keys
+fi
+pandora_ssh_public_key="$(cat /vagrant/shared/ssh/id_rsa.pub)"
+if ! grep "$pandora_ssh_public_key" ~/.ssh/authorized_keys >/dev/null; then
+    echo "$pandora_ssh_public_key" >>~/.ssh/authorized_keys
 fi
 
 # trust the pandora example ca.

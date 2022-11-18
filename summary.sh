@@ -91,7 +91,7 @@ kubectl \
     -o json \
     | jq -r '.data."tls.crt"' \
     | base64 --decode \
-    | openssl x509 -noout -text -in -
+    | openssl x509 -noout -text
 
 # show the traefik certificate.
 title 'traefik certificate'
@@ -102,7 +102,7 @@ kubectl \
     -o json \
     | jq -r '.data."tls.crt"' \
     | base64 --decode \
-    | openssl x509 -noout -text -in -
+    | openssl x509 -noout -text
 
 # show the returned traefik site certificate.
 title 'traefik site certificate'

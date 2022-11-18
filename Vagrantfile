@@ -20,6 +20,10 @@ CONFIG_ETCDCTL_VERSION = 'v3.5.5' # see https://github.com/etcd-io/etcd/releases
 CONFIG_HELM_VERSION = 'v3.10.1' # see https://github.com/helm/helm/releases BUT make sure you use a version compatible with k0s go.mod.
 CONFIG_HELMFILE_VERSION = '0.147.0' # see https://github.com/helmfile/helmfile/releases
 
+# see https://launchpad.net/ubuntu/+archivemirrors
+# see https://launchpad.net/ubuntu/+mirror/mirrors.ptisp.pt-archive
+CONFIG_UBUNTU_MIRROR = 'http://mirrors.ptisp.pt/ubuntu/'
+
 hosts = """
 127.0.0.1	localhost
 #{CONFIG_PANDORA_IP_ADDRESS} #{CONFIG_PANDORA_FQDN}
@@ -73,7 +77,7 @@ end
 save_config
 
 Vagrant.configure(2) do |config|
-  config.vm.box = 'ubuntu-20.04-amd64'
+  config.vm.box = 'ubuntu-22.04-amd64'
 
   config.vm.provider 'libvirt' do |lv, config|
     lv.memory = 2*1024
@@ -81,28 +85,23 @@ Vagrant.configure(2) do |config|
     lv.cpu_mode = 'host-passthrough'
     lv.nested = true
     lv.keymap = 'pt'
-    config.vm.synced_folder '.', '/vagrant', type: 'nfs', nfs_version: '4.2', nfs_udp: false
-  end
-
-  config.vm.provider 'virtualbox' do |vb|
-    vb.linked_clone = true
-    vb.memory = 2*1024
-    vb.cpus = 4
+    # configure the vagrant synced folder.
+    lv.memorybacking :source, :type => 'memfd'  # required for virtiofs.
+    lv.memorybacking :access, :mode => 'shared' # required for virtiofs.
+    config.vm.synced_folder '.', '/vagrant', type: 'virtiofs'
+    #config.vm.synced_folder '.', '/vagrant', type: 'nfs', nfs_version: '4.2', nfs_udp: false
   end
 
   config.vm.define :pandora do |config|
     config.vm.provider 'libvirt' do |lv, config|
       lv.memory = 1*1024
     end
-    config.vm.provider 'virtualbox' do |vb|
-      vb.memory = 1*1024
-    end
     config.vm.hostname = CONFIG_PANDORA_FQDN
     config.vm.network :private_network, ip: CONFIG_PANDORA_IP_ADDRESS, libvirt__forward_mode: 'none', libvirt__dhcp_enabled: false
     config.vm.network :private_network, ip: CONFIG_CONTROLLER_IP_ADDRESS, libvirt__forward_mode: 'none', libvirt__dhcp_enabled: false
     config.vm.provision 'shell', inline: 'echo "$1" >/etc/hosts', args: [hosts]
-    config.vm.provision 'shell', path: 'provision-apt-cacher.sh', args: [CONFIG_PANDORA_FQDN]
-    config.vm.provision 'shell', path: 'provision-base.sh', args: [CONFIG_PANDORA_FQDN]
+    config.vm.provision 'shell', path: 'provision-apt-cacher.sh', args: [CONFIG_UBUNTU_MIRROR, CONFIG_PANDORA_FQDN]
+    config.vm.provision 'shell', path: 'provision-base.sh', args: [CONFIG_UBUNTU_MIRROR, CONFIG_PANDORA_FQDN]
     config.vm.provision 'shell', path: 'provision-certificate.sh', args: [CONFIG_PANDORA_FQDN]
     config.vm.provision 'shell', path: 'provision-dns-server.sh', args: [CONFIG_PANDORA_IP_ADDRESS, CONFIG_PANDORA_FQDN]
     config.vm.provision 'shell', path: 'provision-docker.sh', args: [CONFIG_DOCKER_VERSION, CONFIG_PANDORA_IP_ADDRESS]
@@ -123,14 +122,11 @@ Vagrant.configure(2) do |config|
   nodes.each do |type, name, fqdn, ip_address|
     config.vm.define name do |config|
       config.vm.provider 'libvirt' do |lv, config|
-        lv.memory = 1*1024
-      end
-      config.vm.provider 'virtualbox' do |vb|
-        vb.memory = 1*1024
+        lv.memory = 2*1024
       end
       config.vm.hostname = fqdn
       config.vm.network :private_network, ip: ip_address, libvirt__forward_mode: 'none', libvirt__dhcp_enabled: false
-      config.vm.provision 'shell', path: 'provision-base.sh', args: [CONFIG_PANDORA_FQDN, CONFIG_PANDORA_IP_ADDRESS]
+      config.vm.provision 'shell', path: 'provision-base.sh', args: [CONFIG_UBUNTU_MIRROR, CONFIG_PANDORA_FQDN, CONFIG_PANDORA_IP_ADDRESS]
       config.vm.provision 'shell', path: 'provision-dns-client.sh', args: [CONFIG_PANDORA_IP_ADDRESS]
       if type == 'controller'
         config.vm.provision 'shell', path: 'provision-k0sctl.sh', args: [CONFIG_K0SCTL_VERSION]

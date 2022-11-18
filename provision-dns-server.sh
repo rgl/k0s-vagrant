@@ -4,7 +4,7 @@ source /vagrant/lib.sh
 pandora_ip_address="${1:-10.10.0.2}"; shift || true
 pandora_domain="${1:-pandora.k0s.test}"; shift || true
 k0s_domain="$(echo -n "$pandora_domain" | sed -E 's,^[a-z0-9-]+\.(.+),\1,g')"
-default_dns_resolver="$(systemd-resolve --status | awk '/DNS Servers: /{print $3}')" # recurse queries through the default vagrant environment DNS server.
+default_dns_resolver="$(resolvectl status | awk '/DNS Servers: /{print $3}')" # recurse queries through the default vagrant environment DNS server.
 
 #
 # provision the DNS server/resolver/recursor.

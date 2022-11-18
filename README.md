@@ -4,7 +4,7 @@ This is a [HA k0s kubernetes cluster](https://docs.k0sproject.io/v1.25.2+k0s.0/h
 
 ## Usage
 
-Install the [ubuntu-20.04-amd64](https://github.com/rgl/ubuntu-vagrant) vagrant box.
+Install the [ubuntu-22.04-amd64](https://github.com/rgl/ubuntu-vagrant) vagrant box.
 
 Launch the environment:
 
@@ -116,7 +116,7 @@ kubectl run -it --rm --restart=Never busybox --image=busybox:1.34 -- nslookup -t
 
 To delegate the `k0s.test` zone to the kubernetes managed external dns server (running in pandora) you need to configure your system to delegate that DNS zone to the pandora DNS server, for that, you can configure your system to only use dnsmasq.
 
-For example, on my Ubuntu 20.04 Desktop, I have uninstalled `resolvconf`, disabled `NetworkManager`, and manually configured the network interfaces:
+For example, on my Ubuntu 22.04 Desktop, I have uninstalled `resolvconf`, disabled `NetworkManager`, and manually configured the network interfaces:
 
 ```bash
 sudo su -l

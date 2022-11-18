@@ -1,6 +1,7 @@
 #!/bin/bash
 source /vagrant/lib.sh
 
+ubuntu_mirror="${1:-http://mirrors.ptisp.pt/ubuntu/}"; shift || true
 pandora_fqdn="${1:-pandora.k0s.test}"; shift || true
 
 # provision apt-cacher-ng.
@@ -22,8 +23,11 @@ apt-get install -y --no-install-recommends apt-cacher-ng
 sed -i -E 's,^(Remap-.+),#\1,' /etc/apt-cacher-ng/acng.conf
 sed -i -E 's,^#(Remap-uburep.+),\1,' /etc/apt-cacher-ng/acng.conf
 
+# allow 80 and 443 ports.
+sed -i -E 's,^#?\s*(AllowUserPorts:).+,\1 80 443,' /etc/apt-cacher-ng/acng.conf
+
 # set the APT mirror that apt-cacher-ng uses.
-echo 'http://nl.archive.ubuntu.com/ubuntu/' >/etc/apt-cacher-ng/backends_ubuntu
+echo "$ubuntu_mirror" >/etc/apt-cacher-ng/backends_ubuntu
 
 # restart apt-cacher-ng.
 systemctl restart apt-cacher-ng

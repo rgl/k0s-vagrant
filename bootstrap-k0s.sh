@@ -165,7 +165,7 @@ def save_k0sctl_config():
                                     {
                                         'name': 'kubernetes-dashboard',
                                         'chartname': 'kubernetes-dashboard/kubernetes-dashboard',
-                                        'version': '5.11.0', # installs kubernetes-dashboard 2.7.0.
+                                        'version': '6.0.0', # installs kubernetes-dashboard 2.7.0.
                                         'namespace': 'cluster-dashboard',
                                         'values':
                                             f'''

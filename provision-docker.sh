@@ -2,7 +2,7 @@
 source /vagrant/lib.sh
 
 # NB execute apt-cache madison docker-ce to known the available versions.
-docker_version="${1:-20.10.22}"; shift || true
+docker_version="${1:-23.0.1}"; shift || true
 dns_server_ip_address="${1:-10.10.0.2}"; shift || true
 registry_proxy_domain="${1:-}"; shift || true
 registry_proxy_host="$registry_proxy_domain:5001"
@@ -18,7 +18,7 @@ export DEBIAN_FRONTEND=noninteractive
 apt-get install -y apt-transport-https software-properties-common gnupg2
 wget -qO- https://download.docker.com/linux/ubuntu/gpg | apt-key add -
 add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
-docker_apt_version="$(apt-cache madison docker-ce | awk "/$docker_version~/{print \$3}")"
+docker_apt_version="$(apt-cache madison docker-ce | awk "/$docker_version/{print \$3}")"
 apt-get install -y "docker-ce=$docker_apt_version" "docker-ce-cli=$docker_apt_version" containerd.io
 
 # configure it.

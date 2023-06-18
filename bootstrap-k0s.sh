@@ -78,7 +78,7 @@ def save_k0sctl_config():
                                     {
                                         'name': 'traefik',
                                         'chartname': 'traefik/traefik',
-                                        'version': '21.2.0', # installs traefik 2.9.8.
+                                        'version': '23.1.0', # installs traefik 2.10.1.
                                         'namespace': 'cluster-traefik',
                                         'values':
                                             '''

@@ -33,6 +33,8 @@ exec /usr/bin/apt-get "\$@"
 EOF
 chmod +x /usr/local/bin/apt-get
 hash -r
+
+# configure the hosts file.
 echo "$pandora_ip_address $pandora_fqdn" >>/etc/hosts
 
 # update the package cache.

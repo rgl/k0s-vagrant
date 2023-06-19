@@ -110,6 +110,11 @@ kubectl run -it --rm --restart=Never busybox --image=busybox:1.36 -- nslookup -t
 #   Name:	traefik.k0s.test
 #   Address: 10.10.0.100
 kubectl run -it --rm --restart=Never busybox --image=busybox:1.36 -- nslookup -type=a traefik.k0s.test
+
+# show the upstream dns server. must return the pandora dns nameserver; something alike:
+#   nameserver 10.10.0.2
+pod_name="$(kubectl --namespace kube-system get pods --selector k8s-app=kube-dns --output json | jq -r '.items[0].metadata.name')"
+kubectl --namespace kube-system debug $pod_name --stdin --tty --image=busybox:1.36 --target=coredns -- sh -c 'cat /proc/$(pgrep coredns)/root/etc/resolv.conf'
 ```
 
 ## Host DNS resolver

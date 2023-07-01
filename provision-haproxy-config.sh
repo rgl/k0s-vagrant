@@ -18,12 +18,12 @@ fi
 # NB when boostrapping this ignores the backend servers certificates,
 #    after bootstrap, this properly verifies them.
 # see https://docs.k0sproject.io/v1.26.6+k0s.0/high-availability/#example-configuration-haproxy
-# see Bind and server options at https://cbonte.github.io/haproxy-dconv/1.8/configuration.html#5
-# see https://cbonte.github.io/haproxy-dconv/1.8/configuration.html#4.2-bind
-# see https://cbonte.github.io/haproxy-dconv/1.8/configuration.html#4.2-server
-# see https://cbonte.github.io/haproxy-dconv/1.8/configuration.html#option%20tcp-check
-# see https://cbonte.github.io/haproxy-dconv/1.8/configuration.html#4-option%20httpchk
-# see https://cbonte.github.io/haproxy-dconv/1.8/configuration.html#4.2-option%20tcp-check
+# see Bind and server options at https://cbonte.github.io/haproxy-dconv/2.4/configuration.html#5
+# see https://cbonte.github.io/haproxy-dconv/2.4/configuration.html#4.2-bind
+# see https://cbonte.github.io/haproxy-dconv/2.4/configuration.html#4.2-server
+# see https://cbonte.github.io/haproxy-dconv/2.4/configuration.html#option%20tcp-check
+# see https://cbonte.github.io/haproxy-dconv/2.4/configuration.html#4-option%20httpchk
+# see https://cbonte.github.io/haproxy-dconv/2.4/configuration.html#4.2-option%20tcp-check
 install -m 600 /dev/null /etc/haproxy/haproxy.cfg
 cat >/etc/haproxy/haproxy.cfg <<EOF
 global

@@ -21,8 +21,8 @@ CONFIG_HELM_VERSION = 'v3.12.3' # see https://github.com/helm/helm/releases BUT 
 CONFIG_HELMFILE_VERSION = '0.156.0' # see https://github.com/helmfile/helmfile/releases
 
 # see https://launchpad.net/ubuntu/+archivemirrors
-# see https://launchpad.net/ubuntu/+mirror/mirrors.ptisp.pt-archive
-CONFIG_UBUNTU_MIRROR = 'http://mirrors.ptisp.pt/ubuntu/'
+# see https://launchpad.net/ubuntu/+mirror/mirrors.up.pt-archive
+CONFIG_UBUNTU_MIRROR = 'http://mirrors.up.pt/ubuntu/'
 
 hosts = """
 127.0.0.1	localhost

@@ -1,7 +1,7 @@
 #!/bin/bash
 source /vagrant/lib.sh
 
-ubuntu_mirror="${1:-http://mirrors.ptisp.pt/ubuntu/}"; shift || true
+ubuntu_mirror="${1:-http://mirrors.up.pt/ubuntu/}"; shift || true
 pandora_fqdn="${1:-pandora.k0s.test}"; shift || true
 pandora_ip_address="${1:-10.10.0.2}"; shift || true
 

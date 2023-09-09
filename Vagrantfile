@@ -87,11 +87,12 @@ Vagrant.configure(2) do |config|
     lv.keymap = 'pt'
     lv.machine_virtual_size = 16 # [GiB]
     lv.disk_driver :discard => 'unmap', :cache => 'unsafe'
-    # configure the vagrant synced folder.
-    lv.memorybacking :source, :type => 'memfd'  # required for virtiofs.
-    lv.memorybacking :access, :mode => 'shared' # required for virtiofs.
-    config.vm.synced_folder '.', '/vagrant', type: 'virtiofs'
-    #config.vm.synced_folder '.', '/vagrant', type: 'nfs', nfs_version: '4.2', nfs_udp: false
+    # NB virtiofs is currently broken on my system; so this uses nfs instead.
+    # # configure the vagrant synced folder.
+    # lv.memorybacking :source, :type => 'memfd'  # required for virtiofs.
+    # lv.memorybacking :access, :mode => 'shared' # required for virtiofs.
+    # config.vm.synced_folder '.', '/vagrant', type: 'virtiofs'
+    config.vm.synced_folder '.', '/vagrant', type: 'nfs', nfs_version: '4.2', nfs_udp: false
   end
 
   config.vm.provision "shell", path: "provision-resize-disk.sh"

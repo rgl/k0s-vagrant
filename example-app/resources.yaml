@@ -49,8 +49,8 @@ spec:
 ---
 # see https://kubernetes.io/docs/concepts/services-networking/service/
 # see https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.26/#service-v1-core
-# see https://github.com/kubernetes-sigs/external-dns/blob/v0.13.4/docs/initial-design.md
-# see https://github.com/kubernetes-sigs/external-dns/blob/v0.13.4/docs/ttl.md
+# see https://github.com/kubernetes-sigs/external-dns/blob/v0.13.6/docs/initial-design.md
+# see https://github.com/kubernetes-sigs/external-dns/blob/v0.13.6/docs/ttl.md
 apiVersion: v1
 kind: Service
 metadata:
@@ -101,7 +101,7 @@ spec:
               cpu: "0.1"
           env:
             # see https://kubernetes.io/docs/tasks/inject-data-application/environment-variable-expose-pod-information/
-            # see https://github.com/kubernetes/kubernetes/blob/v1.26.5/test/e2e/common/node/downwardapi.go
+            # see https://github.com/kubernetes/kubernetes/blob/v1.26.8/test/e2e/common/node/downwardapi.go
             - name: EXAMPLE_NODE_NAME
               valueFrom:
                 fieldRef:

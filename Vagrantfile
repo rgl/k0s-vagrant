@@ -10,15 +10,15 @@ CONFIG_CONTROLLER_IP_ADDRESS = '10.10.0.3'
 CONFIG_CONTROLLER_IP_ADDRESSES = generate_ip_addresses('10.10.0.10', CONFIG_CONTROLLER_COUNT)
 CONFIG_WORKER_IP_ADDRESSES = generate_ip_addresses('10.10.0.15', CONFIG_WORKER_COUNT)
 CONFIG_METALLB_IP_ADDRESSES = '10.10.0.100-10.10.0.150'
-CONFIG_DOCKER_VERSION = '24.0.2' # NB execute apt-cache madison docker-ce to known the available versions.
-CONFIG_K0SCTL_VERSION = 'v0.15.2' # see https://github.com/k0sproject/k0sctl/releases
-CONFIG_K0S_VERSION = 'v1.26.6+k0s.0' # see https://github.com/k0sproject/k0s/releases
+CONFIG_DOCKER_VERSION = '24.0.6' # NB execute apt-cache madison docker-ce to known the available versions.
+CONFIG_K0SCTL_VERSION = 'v0.15.5' # see https://github.com/k0sproject/k0sctl/releases
+CONFIG_K0S_VERSION = 'v1.26.8+k0s.0' # see https://github.com/k0sproject/k0s/releases
 CONFIG_KUBECTL_VERSION = CONFIG_K0S_VERSION.gsub(/v([\.\d]+).+/, '\1')
 CONFIG_K9S_VERSION = 'v0.27.4' # see https://github.com/derailed/k9s/releases
-CONFIG_KREW_VERSION = 'v0.4.3' # see https://github.com/kubernetes-sigs/krew/releases
+CONFIG_KREW_VERSION = 'v0.4.4' # see https://github.com/kubernetes-sigs/krew/releases
 CONFIG_ETCDCTL_VERSION = 'v3.5.9' # see https://github.com/etcd-io/etcd/releases BUT make sure you use a version compatible with k0s go.mod.
-CONFIG_HELM_VERSION = 'v3.12.1' # see https://github.com/helm/helm/releases BUT make sure you use a version compatible with k0s go.mod.
-CONFIG_HELMFILE_VERSION = '0.155.0' # see https://github.com/helmfile/helmfile/releases
+CONFIG_HELM_VERSION = 'v3.12.3' # see https://github.com/helm/helm/releases BUT make sure you use a version compatible with k0s go.mod.
+CONFIG_HELMFILE_VERSION = '0.156.0' # see https://github.com/helmfile/helmfile/releases
 
 # see https://launchpad.net/ubuntu/+archivemirrors
 # see https://launchpad.net/ubuntu/+mirror/mirrors.ptisp.pt-archive

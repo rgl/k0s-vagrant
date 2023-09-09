@@ -16,8 +16,8 @@ bash /vagrant/provision-haproxy-config.sh \
   "$(jq -r '.nodes[] | select(.type == "controller") | .ipAddress' /vagrant/shared/config.json | tr '\n' ',' | sed -E 's/,$//g')"
 
 # generate the k0sctl.yaml configuration file.
-# see https://docs.k0sproject.io/v1.26.6+k0s.0/k0sctl-install/
-# see https://docs.k0sproject.io/v1.26.6+k0s.0/configuration/
+# see https://docs.k0sproject.io/v1.26.8+k0s.0/k0sctl-install/
+# see https://docs.k0sproject.io/v1.26.8+k0s.0/configuration/
 python3 <<'EOF'
 import json
 
@@ -74,11 +74,11 @@ def save_k0sctl_config():
                                     # see https://artifacthub.io/packages/helm/traefik/traefik
                                     # see https://github.com/traefik/traefik-helm-chart
                                     # see https://github.com/traefik/traefik-helm-chart/blob/master/traefik/values.yaml
-                                    # see https://docs.k0sproject.io/v1.26.6+k0s.0/examples/traefik-ingress/
+                                    # see https://docs.k0sproject.io/v1.26.8+k0s.0/examples/traefik-ingress/
                                     {
                                         'name': 'traefik',
                                         'chartname': 'traefik/traefik',
-                                        'version': '23.1.0', # installs traefik 2.10.1.
+                                        'version': '24.0.0', # installs traefik 2.10.4.
                                         'namespace': 'cluster-traefik',
                                         'values':
                                             '''
@@ -134,7 +134,7 @@ def save_k0sctl_config():
                                     {
                                         'name': 'metallb',
                                         'chartname': 'bitnami/metallb',
-                                        'version': '4.5.5', # installs metallb 0.13.10.
+                                        'version': '4.7.2', # installs metallb 0.13.11.
                                         'namespace': 'cluster-metallb'
                                     },
                                     # see https://artifacthub.io/packages/helm/bitnami/external-dns
@@ -143,7 +143,7 @@ def save_k0sctl_config():
                                     {
                                         'name': 'external-dns',
                                         'chartname': 'bitnami/external-dns',
-                                        'version': '6.20.4', # installs external-dns 0.13.4.
+                                        'version': '6.24.3', # installs external-dns 0.13.6.
                                         'namespace': 'cluster-external-dns',
                                         'values':
                                             f'''
@@ -294,7 +294,7 @@ bash /vagrant/provision-haproxy-config.sh \
 # see https://cert-manager.io/docs/installation/supported-releases/
 # see https://cert-manager.io/docs/configuration/selfsigned/#bootstrapping-ca-issuers
 # see https://cert-manager.io/docs/usage/ingress/
-cert_manager_version='v1.12.2'
+cert_manager_version='v1.12.4'
 helm repo add jetstack https://charts.jetstack.io
 helm repo update
 kubectl apply -f "https://github.com/jetstack/cert-manager/releases/download/$cert_manager_version/cert-manager.crds.yaml"
@@ -508,7 +508,7 @@ etcd-info endpoint status
 
 # show the nodes.
 # NB the controller nodes do not appear in this list.
-# see https://docs.k0sproject.io/v1.26.6+k0s.0/FAQ/#why-doesnt-kubectl-get-nodes-list-the-k0s-controllers
+# see https://docs.k0sproject.io/v1.26.8+k0s.0/FAQ/#why-doesnt-kubectl-get-nodes-list-the-k0s-controllers
 kubectl get nodes -o wide
 
 # add the custom registry to the default service account (in the default namespace).

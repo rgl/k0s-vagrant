@@ -4,13 +4,25 @@ import (
 	"flag"
 	"fmt"
 	"log"
+	"net"
 	"net/http"
 	"os"
 	"runtime"
 	"sort"
 	"strings"
 	"text/template"
+	"time"
 )
+
+var startTime time.Time
+
+func uptime() time.Duration {
+	return time.Since(startTime)
+}
+
+func init() {
+	startTime = time.Now()
+}
 
 var indexTemplate = template.Must(template.New("Index").Parse(`<!DOCTYPE html>
 <html>
@@ -55,8 +67,14 @@ table > tbody > tr:hover {
 	<table>
 		<caption>Properties</caption>
 		<tbody>
-			<tr><th>Runtime</th><td>{{.Runtime}}</td></tr>
+			<tr><th>Request</th><td>{{.Request}}</td></tr>
+            <tr><th>Client Address</th><td>{{.ClientAddress}}</td></tr>
+            <tr><th>Server Address</th><td>{{.ServerAddress}}</td></tr>
 			<tr><th>Hostname</th><td>{{.Hostname}}</td></tr>
+			<tr><th>Runtime</th><td>{{.Runtime}}</td></tr>
+			<tr><th>Os</th><td>{{.Os}}</td></tr>
+            <tr><th>Architecture</th><td>{{.Architecture}}</td></tr>
+			<tr><th>Uptime</th><td>{{.Uptime}}</td></tr>
 		</tbody>
 	</table>
     <table>
@@ -88,8 +106,14 @@ table > tbody > tr:hover {
 `))
 
 type indexData struct {
-	Runtime        string
+	Request        string
+	ClientAddress  string
+	ServerAddress  string
 	Hostname       string
+	Os             string
+	Architecture   string
+	Runtime        string
+	Uptime         string
 	Environment    []nameValuePair
 	RequestHeaders headers
 }
@@ -182,8 +206,14 @@ func main() {
 		w.Header().Set("Content-Type", "text/html")
 
 		err = indexTemplate.ExecuteTemplate(w, "Index", indexData{
-			Runtime:        runtime.Version(),
+			Request:        fmt.Sprintf("%s %s%s", r.Method, r.Host, r.URL),
+			ClientAddress:  r.RemoteAddr,
+			ServerAddress:  r.Context().Value(http.LocalAddrContextKey).(net.Addr).String(),
 			Hostname:       hostname,
+			Os:             runtime.GOOS,
+			Architecture:   runtime.GOARCH,
+			Runtime:        runtime.Version(),
+			Uptime:         uptime().String(),
 			Environment:    environment,
 			RequestHeaders: headers,
 		})

@@ -9,7 +9,14 @@ dns_server_ip_address="${1:-10.10.0.2}"; shift || true
 #    so we now completly ignore systemd-resolved, and replace the
 #    /etc/resolv.conf symlink with a file.
 systemctl disable --now systemd-resolved
+
+# disable retrieval of dns-related options that overrides /etc/resolv.conf
+sed 's/.*domain-name, domain-name-servers, domain-search, host-name,.*//; s/.*dhcp6.name-servers, dhcp6.domain-search,.*//' -i /etc/dhcp/dhclient.conf
+service networking restart
+
+# remove /etc/resolv.conf while it might be a symlink.
 rm -f /etc/resolv.conf 
 cat >/etc/resolv.conf <<EOF
 nameserver $dns_server_ip_address
 EOF
+

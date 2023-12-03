@@ -6,7 +6,7 @@ controller_ip_address="${1:-10.10.0.3}"; shift || true
 controller_ip_addresses="${1:-10.10.0.10,10.10.0.11,10.10.0.12}"; shift || true
 
 # install.
-apt-get install -y haproxy
+apt-get install -y haproxy netcat-openbsd
 haproxy -vv
 
 # configure.

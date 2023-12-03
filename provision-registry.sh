@@ -32,7 +32,9 @@ echo -n 'http secret' >/opt/registry/secrets/http
 # see https://docs.docker.com/registry/deploying/
 echo "starting the registry $registry_url..."
 install -d -m 700 /opt/registry/data
-docker run -d \
+
+[ -n "$(docker ps -qf name='^registry$')" ] ||
+  docker run -d \
     --restart=unless-stopped \
     --name registry \
     -p 5000:5000 \

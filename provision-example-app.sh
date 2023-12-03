@@ -12,5 +12,5 @@ docker build -t "$registry_host/example-app" .
 docker push "$registry_host/example-app"
 
 # deploy.
-# TODO kustomize the domain.
-kubectl apply -f resources.yaml
+export CONFIG_DOMAIN=$(hostname --domain)
+envsubst < resources.yaml | kubectl apply -f -

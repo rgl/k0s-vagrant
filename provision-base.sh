@@ -1,7 +1,7 @@
-#!/bin/bash
+#!/bin/bash -ex
 source /vagrant/lib.sh
 
-ubuntu_mirror="${1:-http://mirrors.up.pt/ubuntu/}"; shift || true
+package_mirror="${1:-http://mirrors.up.pt/ubuntu/}"; shift || true
 pandora_fqdn="${1:-pandora.k0s.test}"; shift || true
 pandora_ip_address="${1:-10.10.0.2}"; shift || true
 
@@ -10,12 +10,20 @@ pandora_ip_address="${1:-10.10.0.2}"; shift || true
 #     dpkg-preconfigure: unable to re-open stdin: No such file or directory
 export DEBIAN_FRONTEND=noninteractive
 
+# Regenerate Machine UUID
+rm -f /etc/machine-id
+dbus-uuidgen --ensure=/etc/machine-id
+
 # show mac addresses and the machine uuid to troubleshoot they are unique within the cluster.
 ip link
-cat /sys/class/dmi/id/product_uuid
+cat /sys/class/dmi/id/product_uuid ||:
+cat /etc/machine-id
 
-# configure the ubuntu mirror.
-sed -i -E "s,(deb(-src)?) [^ ]+ ,\\1 $ubuntu_mirror ,g" /etc/apt/sources.list
+# configure the package mirror.
+for p in $(find /etc/apt/sources.list /etc/apt/sources.list.d -type f); do
+    sed -i -E '/http:\\/\\/$pandora_fqdn:3142/! s,(deb(-src)? .*)http://,\1http://$pandora_fqdn:3142/,g' $p
+    sed -i -E '/http:\\/\\/$pandora_fqdn:3142/! s,(deb(-src)? .*)https://,\1http://$pandora_fqdn:3142/HTTPS///,g' $p
+done
 
 # configure APT to use our apt-cacher cache APT proxy.
 # NB we cannot use APT::Update::Pre-Invoke in apt.confi because that is invoked
@@ -35,7 +43,8 @@ chmod +x /usr/local/bin/apt-get
 hash -r
 
 # configure the hosts file.
-echo "$pandora_ip_address $pandora_fqdn" >>/etc/hosts
+fgrep -q "$pandora_ip_address $pandora_fqdn" /etc/hosts ||
+    echo "$pandora_ip_address $pandora_fqdn" >>/etc/hosts
 
 # update the package cache.
 apt-get update
@@ -115,7 +124,7 @@ if [ ! -f ~/.ssh/authorized_keys ]; then
     install -m 600 /dev/null ~/.ssh/authorized_keys
 fi
 pandora_ssh_public_key="$(cat /vagrant/shared/ssh/id_rsa.pub)"
-if ! grep "$pandora_ssh_public_key" ~/.ssh/authorized_keys >/dev/null; then
+if ! grep -q "$pandora_ssh_public_key" ~/.ssh/authorized_keys; then
     echo "$pandora_ssh_public_key" >>~/.ssh/authorized_keys
 fi
 
@@ -128,13 +137,16 @@ if [ -f /vagrant/shared/tls/example-ca/example-ca-crt.pem ]; then
 fi
 
 # install iptables.
-apt-get install -y iptables
+apt-get install -y iptables systemd-resolved
+
+sed 's,^#DNS=.*,DNS=1.1.1.1 8.8.8.8,' -i /etc/systemd/resolved.conf
+systemctl restart systemd-resolved
 
 # install tcpdump.
-apt-get install -y tcpdump
+apt-get install -y tcpdump lsb-release
 
-# install curl.
-apt-get install -y curl
+# install gpg, curl & wget
+apt-get install -y gpg curl wget
 
 # install ipvsadm.
 apt-get install -y ipvsadm

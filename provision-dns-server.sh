@@ -1,10 +1,11 @@
-#!/bin/bash
+#!/bin/bash -ex
 source /vagrant/lib.sh
 
 pandora_ip_address="${1:-10.10.0.2}"; shift || true
 pandora_domain="${1:-pandora.k0s.test}"; shift || true
 k0s_domain="$(echo -n "$pandora_domain" | sed -E 's,^[a-z0-9-]+\.(.+),\1,g')"
 default_dns_resolver="$(resolvectl status | awk '/DNS Servers: /{print $3}')" # recurse queries through the default vagrant environment DNS server.
+[ -n "${default_dns_resolver}" ] || default_dns_resolver=8.8.8.8
 
 #
 # provision the DNS server/resolver/recursor.
@@ -17,6 +18,8 @@ default_dns_resolver="$(resolvectl status | awk '/DNS Servers: /{print $3}')" # 
 apt-get install -y --no-install-recommends dnsutils dnsmasq
 systemctl stop systemd-resolved
 systemctl disable systemd-resolved
+sed 's,^#\(IGNORE_RESOLVCONF=yes\),\1,' -i /etc/default/dnsmasq
+
 cat >/etc/dnsmasq.d/local.conf <<EOF
 no-resolv
 bind-interfaces
@@ -26,6 +29,10 @@ listen-address=$pandora_ip_address
 server=/$k0s_domain/127.0.0.2
 server=$default_dns_resolver
 EOF
+
+sed 's/.*domain-name, domain-name-servers, domain-search, host-name,.*//; s/.*dhcp6.name-servers, dhcp6.domain-search,.*//' -i /etc/dhcp/dhclient.conf
+service networking restart
+
 rm /etc/resolv.conf
 cat >/etc/resolv.conf <<EOF
 nameserver 127.0.0.1
@@ -69,6 +76,7 @@ diff -u /etc/powerdns/pdns.conf{.orig,} || true
 
 # initialize the sqlite3 database.
 # see https://doc.powerdns.com/authoritative/backends/generic-sqlite3.html
+rm -f /var/lib/powerdns/pdns.sqlite3
 cat >/etc/powerdns/pdns.d/gsqlite3.conf <<'EOF'
 launch=gsqlite3
 gsqlite3-database=/var/lib/powerdns/pdns.sqlite3
@@ -80,7 +88,7 @@ su pdns \
 
 # load the $k0s_domain zone into the database.
 # NB we use 1m for testing purposes, in real world, this should probably be 10m+.
-pdnsutil load-zone $k0s_domain <(echo "
+cat <<EOF > /tmp/$k0s_domain.zone.$$
 \$TTL 1m
 \$ORIGIN $k0s_domain. ; base domain-name
 @               IN      SOA     a.ns    hostmaster (
@@ -92,7 +100,12 @@ pdnsutil load-zone $k0s_domain <(echo "
     1m         ; minimum (the slave stores negative results for this long)
 )
                 IN      NS      a.ns
-")
+EOF
+
+# pdnsutil doesn't support loading from non-regular files.
+pdnsutil load-zone $k0s_domain /tmp/$k0s_domain.zone.$$
+rm -f /tmp/$k0s_domain.zone.$$
+
 # TODO add the reverse zone.
 pdnsutil list-all-zones
 

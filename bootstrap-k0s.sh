@@ -1,6 +1,7 @@
 #!/bin/bash
 source /vagrant/lib.sh
 
+set -ex
 registry_domain="${1:-pandora.k0s.test}"; shift || true
 registry_host="$registry_domain:5000"
 registry_url="https://$registry_host"
@@ -78,7 +79,7 @@ def save_k0sctl_config():
                                     {
                                         'name': 'traefik',
                                         'chartname': 'traefik/traefik',
-                                        'version': '24.0.0', # installs traefik 2.10.4.
+                                        'version': '25.0.0', # installs traefik 2.10.5.
                                         'namespace': 'cluster-traefik',
                                         'values':
                                             '''
@@ -134,7 +135,7 @@ def save_k0sctl_config():
                                     {
                                         'name': 'metallb',
                                         'chartname': 'bitnami/metallb',
-                                        'version': '4.7.2', # installs metallb 0.13.11.
+                                        'version': '4.7.15', # installs metallb 0.13.12.
                                         'namespace': 'cluster-metallb'
                                     },
                                     # see https://artifacthub.io/packages/helm/bitnami/external-dns
@@ -143,7 +144,7 @@ def save_k0sctl_config():
                                     {
                                         'name': 'external-dns',
                                         'chartname': 'bitnami/external-dns',
-                                        'version': '6.24.3', # installs external-dns 0.13.6.
+                                        'version': '6.28.5', # installs external-dns 0.14.0.
                                         'namespace': 'cluster-external-dns',
                                         'values':
                                             f'''
@@ -213,7 +214,7 @@ save_k0sctl_config()
 EOF
 
 # apply the configuration.
-k0sctl apply --config /vagrant/shared/k0sctl.yaml
+k0sctl apply --config /vagrant/shared/k0sctl.yaml --force
 
 # save the kubectl configuration.
 install -d -m 700 ~/.kube
@@ -351,7 +352,7 @@ EOF
 # wait for all the helm charts to be available.
 jq -r '.spec.k0s.config.spec.extensions.helm.charts[] | [.namespace, .name] | @tsv' /vagrant/shared/k0sctl.yaml | while read namespace name; do
   echo "Waiting for helm release $namespace $name to be deployed..."
-  while [ -z "$(helm ls -n "$namespace" -o json | jq -r '.[] | select(.status == "deployed")')" ]; do sleep 5; done
+  while [ -z "$(helm ls -n "$namespace" -a -o json | jq -r '.[] | select(.status == "deployed")')" ]; do sleep 5; done
 done
 
 # expose the traefik dashboard at http://traefik.k0s.test and https://traefik.k0s.test.

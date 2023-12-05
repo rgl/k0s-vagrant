@@ -12,7 +12,7 @@ spec:
       - Kubernetes
   commonName: example-app
   dnsNames:
-    - example-app.k0s.test
+    - example-app.${CONFIG_DOMAIN}
   duration: 1h # NB this is so low for testing purposes.
   privateKey:
     algorithm: ECDSA # NB Ed25519 is not yet supported by chrome 93 or firefox 91.
@@ -36,7 +36,7 @@ spec:
     #    the external DNS server (installed in the pandora box) based on this
     #    ingress rule.
     #    see https://github.com/kubernetes-sigs/external-dns
-    - host: example-app.k0s.test
+    - host: example-app.${CONFIG_DOMAIN}
       http:
         paths:
           - path: /
@@ -88,7 +88,7 @@ spec:
         kubernetes.io/os: linux
       containers:
         - name: example-app
-          image: pandora.k0s.test:5000/example-app
+          image: pandora.${CONFIG_DOMAIN}:5000/example-app
           ports:
             - name: web
               containerPort: 8000

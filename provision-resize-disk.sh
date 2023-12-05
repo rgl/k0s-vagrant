@@ -1,5 +1,7 @@
 #!/bin/bash
-set -euo pipefail
+set -exuo pipefail
+
+apt-get install -yy parted e2fsprogs
 
 partition_device="$(findmnt -no SOURCE /)"
 partition_number="$(echo "$partition_device" | perl -ne '/(\d+)$/ && print $1')"

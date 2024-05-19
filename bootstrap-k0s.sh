@@ -107,8 +107,8 @@ def save_k0sctl_config():
                                         'chartname': 'traefik/traefik',
                                         'version': '$traefik_chart_version',
                                         'namespace': 'cluster-traefik',
-                                        'values':
-                                            '''
+                                        'values': textwrap.dedent(
+                                            '''\
                                             ports:
                                               # enable tls.
                                               # NB this is not really configured. it will use a dummy
@@ -153,7 +153,7 @@ def save_k0sctl_config():
                                             # NB this should never be done at production.
                                             globalArguments:
                                               - --serverstransport.insecureskipverify=true
-                                            '''
+                                            '''),
                                     },
                                     # see https://artifacthub.io/packages/helm/bitnami/metallb
                                     # see https://metallb.universe.tf/configuration/#layer-2-configuration
@@ -172,8 +172,8 @@ def save_k0sctl_config():
                                         'chartname': 'bitnami/external-dns',
                                         'version': '$external_dns_chart_version',
                                         'namespace': 'cluster-external-dns',
-                                        'values':
-                                            f'''
+                                        'values': textwrap.dedent(
+                                            f'''\
                                             logLevel: debug
                                             interval: 30s
                                             sources:
@@ -185,7 +185,7 @@ def save_k0sctl_config():
                                             pdns:
                                               apiUrl: http://{config['pandoraFqdn']}
                                               apiKey: vagrant
-                                            ''',
+                                            '''),
                                     },
                                     # see https://artifacthub.io/packages/helm/k8s-dashboard/kubernetes-dashboard
                                     # see https://github.com/kubernetes/dashboard/blob/master/aio/deploy/helm-chart/kubernetes-dashboard/values.yaml
@@ -226,10 +226,34 @@ def save_k0sctl_config():
             ],
         },
     }
+    #del k0sctl_config['spec']['k0s']['config']['spec']['extensions']
     with open('/vagrant/shared/k0sctl.yaml', 'w') as f:
         json.dump(k0sctl_config, f, indent=4)
 
 save_k0sctl_config()
+EOF
+
+# dump the chart values.
+python3 <<EOF
+import json
+import textwrap
+
+def load_config():
+    with open('/vagrant/shared/k0sctl.yaml', 'r') as f:
+        return json.load(f)
+
+config = load_config()
+
+config_spec = config['spec']['k0s']['config']['spec']
+if 'extensions' in config_spec:
+  config_extensions = config_spec['extensions']
+  if 'helm' in config_extensions:
+    config_helm_extension = config_extensions['helm']
+    for c in config_helm_extension['charts']:
+      print(f'chart {c["name"]} {c["version"]}')
+      if 'values' in c:
+        print('  values:')
+        print(f'{textwrap.indent(textwrap.dedent(c["values"]).strip(), "    ")}')
 EOF
 
 # apply the configuration.

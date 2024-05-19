@@ -27,7 +27,7 @@ func init() {
 var indexTemplate = template.Must(template.New("Index").Parse(`<!DOCTYPE html>
 <html>
 <head>
-<title>example-docker-buildx-go</title>
+<title>example-app</title>
 <style>
 body {
 	font-family: monospace;

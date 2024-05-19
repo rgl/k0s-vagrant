@@ -36,7 +36,7 @@ CONFIG_KREW_VERSION = 'v0.4.4'
 # see https://github.com/etcd-io/etcd/releases
 # NB make sure you use a version compatible with k0s go.mod.
 # renovate: datasource=github-releases depName=etcd-io/etcd
-CONFIG_ETCDCTL_VERSION = 'v3.5.9'
+CONFIG_ETCDCTL_VERSION = 'v3.5.13'
 
 # see https://github.com/helm/helm/releases
 # NB make sure you use a version compatible with k0s go.mod.

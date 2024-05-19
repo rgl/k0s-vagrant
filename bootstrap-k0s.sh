@@ -22,7 +22,7 @@ metallb_chart_version='4.7.2' # app version 0.13.11.
 # see https://artifacthub.io/packages/helm/bitnami/external-dns
 # see https://github.com/kubernetes-sigs/external-dns
 # renovate: datasource=helm depName=external-dns registryUrl=https://charts.bitnami.com/bitnami
-external_dns_chart_version='6.24.3' # app version 0.13.6.
+external_dns_chart_version='7.3.4' # app version 0.14.2.
 
 # see https://artifacthub.io/packages/helm/k8s-dashboard/kubernetes-dashboard
 # see https://github.com/kubernetes/dashboard

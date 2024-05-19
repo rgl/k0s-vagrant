@@ -32,7 +32,7 @@ kubernetes_dashboard_chart_version='6.0.8' # app version 2.7.0.
 # see https://artifacthub.io/packages/helm/cert-manager/cert-manager
 # see https://github.com/cert-manager/cert-manager
 # renovate: datasource=helm depName=cert-manager registryUrl=https://charts.jetstack.io
-cert_manager_chart_version='1.12.4' # app version 1.12.4.
+cert_manager_chart_version='1.14.5' # app version 1.14.5.
 
 # ensure haproxy is in bootstrap mode.
 bash /vagrant/provision-haproxy-config.sh \

@@ -27,7 +27,7 @@ CONFIG_KUBECTL_VERSION = CONFIG_K0S_VERSION.gsub(/v([\.\d]+).+/, '\1')
 
 # see https://github.com/derailed/k9s/releases
 # renovate: datasource=github-releases depName=derailed/k9s
-CONFIG_K9S_VERSION = 'v0.27.4'
+CONFIG_K9S_VERSION = 'v0.32.4'
 
 # see https://github.com/kubernetes-sigs/krew/releases
 # renovate: datasource=github-releases depName=kubernetes-sigs/krew

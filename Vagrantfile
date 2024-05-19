@@ -18,7 +18,7 @@ CONFIG_DOCKER_VERSION = '26.1.3'
 
 # see https://github.com/k0sproject/k0sctl/releases
 # renovate: datasource=github-releases depName=k0sproject/k0sctl
-CONFIG_K0SCTL_VERSION = 'v0.15.5'
+CONFIG_K0SCTL_VERSION = 'v0.17.8'
 
 # see https://github.com/k0sproject/k0s/releases
 # renovate: datasource=github-releases depName=k0sproject/k0s

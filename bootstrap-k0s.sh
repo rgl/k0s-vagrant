@@ -17,7 +17,7 @@ traefik_chart_version='24.0.0' # app version 2.10.4.
 # see https://artifacthub.io/packages/helm/bitnami/metallb
 # see https://github.com/metallb/metallb
 # renovate: datasource=helm depName=metallb registryUrl=https://charts.bitnami.com/bitnami
-metallb_chart_version='4.7.2' # app version 0.13.11.
+metallb_chart_version='6.1.7' # app version 0.14.5.
 
 # see https://artifacthub.io/packages/helm/bitnami/external-dns
 # see https://github.com/kubernetes-sigs/external-dns

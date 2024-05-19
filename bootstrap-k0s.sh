@@ -27,7 +27,7 @@ external_dns_chart_version='7.3.4' # app version 0.14.2.
 # see https://artifacthub.io/packages/helm/k8s-dashboard/kubernetes-dashboard
 # see https://github.com/kubernetes/dashboard
 # renovate: datasource=helm depName=kubernetes-dashboard registryUrl=https://kubernetes.github.io/dashboard
-kubernetes_dashboard_chart_version='6.0.8' # app version 2.7.0.
+kubernetes_dashboard_chart_version='7.4.0' # app version 7.4.0.
 
 # see https://artifacthub.io/packages/helm/cert-manager/cert-manager
 # see https://github.com/cert-manager/cert-manager
@@ -46,6 +46,7 @@ bash /vagrant/provision-haproxy-config.sh \
 # see https://docs.k0sproject.io/v1.26.8+k0s.0/configuration/
 python3 <<EOF
 import json
+import textwrap
 
 def load_config():
     with open('/vagrant/shared/config.json', 'r') as f:
@@ -193,20 +194,13 @@ def save_k0sctl_config():
                                         'chartname': 'kubernetes-dashboard/kubernetes-dashboard',
                                         'version': '$kubernetes_dashboard_chart_version',
                                         'namespace': 'cluster-dashboard',
-                                        'values':
-                                            f'''
-                                            ingress:
-                                              enabled: true
-                                              hosts:
-                                                - kubernetes-dashboard.{config['pandoraFqdn'].split('.', 1)[-1]}
-                                              tls:
-                                                - secretName: kubernetes-dashboard-tls
-                                            service:
-                                              externalPort: 80
-                                            protocolHttp: true
-                                            extraArgs:
-                                              - --enable-insecure-login
-                                            ''',
+                                        'values': textwrap.dedent(
+                                            f'''\
+                                            kong:
+                                              proxy:
+                                                http:
+                                                  enabled: true
+                                            '''),
                                     },
                                 ]
                             }
@@ -443,8 +437,29 @@ spec:
     - host: traefik.$domain
 EOF
 
-# create the kubernetes-dashboard ingress tls certificate.
+# create the kubernetes-dashboard ingress.
 kubectl apply -n cluster-dashboard -f - <<EOF
+---
+# see https://kubernetes.io/docs/concepts/services-networking/ingress/
+# see https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.26/#ingress-v1-networking-k8s-io
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: kubernetes-dashboard
+spec:
+  rules:
+    - host: kubernetes-dashboard.$domain
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: kubernetes-dashboard-kong-proxy
+                port:
+                  name: kong-proxy
+  tls:
+    - secretName: kubernetes-dashboard-tls
 ---
 # see https://cert-manager.io/docs/reference/api-docs/#cert-manager.io/v1.Certificate
 apiVersion: cert-manager.io/v1

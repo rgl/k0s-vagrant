@@ -45,7 +45,7 @@ CONFIG_HELM_VERSION = 'v3.15.0'
 
 # see https://github.com/helmfile/helmfile/releases
 # renovate: datasource=github-releases depName=helmfile/helmfile
-CONFIG_HELMFILE_VERSION = '0.156.0'
+CONFIG_HELMFILE_VERSION = '0.164.0'
 
 # see https://launchpad.net/ubuntu/+archivemirrors
 # see https://launchpad.net/ubuntu/+mirror/mirrors.up.pt-archive

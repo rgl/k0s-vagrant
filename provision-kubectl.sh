@@ -1,12 +1,19 @@
 #!/bin/bash
 source /vagrant/lib.sh
 
-kubernetes_version="${1:-1.26.8}"; shift || true
+kubernetes_version="${1:-1.26.15}"; shift || true
 krew_version="${1:-v0.4.4}"; shift || true # NB see https://github.com/kubernetes-sigs/krew
 
 # see https://kubernetes.io/docs/tasks/tools/install-kubectl-linux/#install-using-native-package-management
-wget -qO- https://packages.cloud.google.com/apt/doc/apt-key.gpg | gpg --dearmor -o /etc/apt/keyrings/packages.cloud.google.com.gpg
-echo 'deb [signed-by=/etc/apt/keyrings/packages.cloud.google.com.gpg] https://apt.kubernetes.io/ kubernetes-xenial main' >/etc/apt/sources.list.d/kubernetes.list
+# see https://wiki.debian.org/DebianRepository/Format
+# see https://pkgs.k8s.io/core:/stable:/v1.26/deb/InRelease
+# see https://pkgs.k8s.io/core:/stable:/v1.26/deb/Packages
+# e.g. https://pkgs.k8s.io/core:/stable:/v1.26/deb/
+kubernetes_repository_version="$(echo "$kubernetes_version" | cut -d. -f1,2)"
+wget -qO- "https://pkgs.k8s.io/core:/stable:/v$kubernetes_repository_version/deb/Release.key" \
+    | gpg --dearmor -o /etc/apt/keyrings/pkgs.k8s.io.gpg
+echo "deb [signed-by=/etc/apt/keyrings/pkgs.k8s.io.gpg] https://pkgs.k8s.io/core:/stable:/v$kubernetes_repository_version/deb/ /" \
+    > /etc/apt/sources.list.d/kubernetes.list
 apt-get update
 kubectl_package_version="$(apt-cache madison kubectl | awk "/$kubernetes_version-/{print \$3}")"
 apt-get install -y "kubectl=$kubectl_package_version"

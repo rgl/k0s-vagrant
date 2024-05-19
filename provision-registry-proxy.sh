@@ -4,7 +4,7 @@ set -eu
 registry_domain="${1:-pandora.k0s.test}"; shift || true
 registry_host="$registry_domain:5001"
 registry_url="https://$registry_host"
-registry_image='registry:2.8.2' # see https://hub.docker.com/_/registry
+registry_image='registry:2.8.3' # see https://hub.docker.com/_/registry
 registry_container_name='registry-proxy'
 
 # copy certificate.

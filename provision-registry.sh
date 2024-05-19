@@ -4,7 +4,7 @@ source /vagrant/lib.sh
 registry_domain="${1:-pandora.k0s.test}"; shift || true
 registry_host="$registry_domain:5000"
 registry_url="https://$registry_host"
-registry_image='registry:2.8.2' # see https://hub.docker.com/_/registry
+registry_image='registry:2.8.3' # see https://hub.docker.com/_/registry
 registry_username='vagrant'
 registry_password='vagrant'
 

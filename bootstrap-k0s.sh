@@ -397,7 +397,14 @@ jq -r '.spec.k0s.config.spec.extensions.helm.charts[] | [.namespace, .name] | @t
   while [ -z "$(helm ls -n "$namespace" -o json | jq -r '.[] | select(.status == "deployed")')" ]; do sleep 5; done
 done
 
+# trust the ingress ca.
+kubectl -n cert-manager get secret/ingress-tls -o jsonpath='{.data.tls\.crt}' \
+  | base64 --decode \
+  >/usr/local/share/ca-certificates/kubernetes-ingress-ca.crt
+update-ca-certificates -v
+
 # expose the traefik dashboard at http://traefik.k0s.test and https://traefik.k0s.test.
+traefik_host="traefik.$domain"
 kubectl apply -n cluster-traefik -f - <<EOF
 ---
 # see https://cert-manager.io/docs/reference/api-docs/#cert-manager.io/v1.Certificate
@@ -413,7 +420,7 @@ spec:
       - Kubernetes
   commonName: Traefik Dashboard
   dnsNames:
-    - traefik.$domain
+    - $traefik_host
   duration: 1h # NB this is so low for testing purposes.
   privateKey:
     algorithm: ECDSA # NB Ed25519 is not yet supported by chrome 93 or firefox 91.
@@ -433,7 +440,7 @@ spec:
   tls:
     secretName: traefik-tls
   routes:
-    - match: Host("traefik.$domain")
+    - match: Host("$traefik_host")
       kind: Rule
       services:
         - name: api@internal
@@ -458,10 +465,12 @@ spec:
     #    the external DNS server (installed in the pandora box) based on this
     #    ingress rule.
     #    see https://github.com/kubernetes-sigs/external-dns
-    - host: traefik.$domain
+    - host: $traefik_host
 EOF
+bash -c "while ! wget -qO/dev/null 'https://$traefik_host'; do sleep 1; done;"
 
 # create the kubernetes-dashboard ingress.
+kubernetes_dashboard_host="kubernetes-dashboard.$domain"
 kubectl apply -n cluster-dashboard -f - <<EOF
 ---
 # see https://kubernetes.io/docs/concepts/services-networking/ingress/
@@ -472,7 +481,7 @@ metadata:
   name: kubernetes-dashboard
 spec:
   rules:
-    - host: kubernetes-dashboard.$domain
+    - host: $kubernetes_dashboard_host
       http:
         paths:
           - path: /
@@ -498,7 +507,7 @@ spec:
       - Kubernetes
   commonName: kubernetes-dashboard
   dnsNames:
-    - kubernetes-dashboard.$domain
+    - $kubernetes_dashboard_host
   duration: 1h # NB this is so low for testing purposes.
   privateKey:
     algorithm: ECDSA # NB Ed25519 is not yet supported by chrome 93 or firefox 91.
@@ -508,6 +517,7 @@ spec:
     kind: ClusterIssuer
     name: ingress
 EOF
+bash -c "while ! wget -qO/dev/null 'https://$kubernetes_dashboard_host'; do sleep 1; done;"
 
 # create the admin user for use in the kubernetes-dashboard.
 # see https://github.com/kubernetes/dashboard/wiki/Creating-sample-user

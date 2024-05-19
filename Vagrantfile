@@ -14,7 +14,7 @@ CONFIG_METALLB_IP_ADDRESSES = '10.10.0.100-10.10.0.150'
 # see https://github.com/moby/moby/releases
 # NB execute apt-cache madison docker-ce to known the available versions.
 # renovate: datasource=github-releases depName=moby/moby
-CONFIG_DOCKER_VERSION = '24.0.6'
+CONFIG_DOCKER_VERSION = '26.1.3'
 
 # see https://github.com/k0sproject/k0sctl/releases
 # renovate: datasource=github-releases depName=k0sproject/k0sctl

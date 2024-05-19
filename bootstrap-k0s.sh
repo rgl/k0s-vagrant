@@ -12,7 +12,7 @@ domain="$(hostname --domain)"
 # see https://github.com/traefik/traefik-helm-chart/releases
 # see https://github.com/traefik/traefik
 # renovate: datasource=helm depName=traefik registryUrl=https://helm.traefik.io/traefik
-traefik_chart_version='24.0.0' # app version 2.10.4.
+traefik_chart_version='28.0.0' # app version 3.0.0.
 
 # see https://artifacthub.io/packages/helm/bitnami/metallb
 # see https://github.com/metallb/metallb
@@ -405,7 +405,7 @@ spec:
     kind: ClusterIssuer
     name: ingress
 ---
-apiVersion: traefik.containo.us/v1alpha1
+apiVersion: traefik.io/v1alpha1
 kind: IngressRoute
 metadata:
   name: traefik

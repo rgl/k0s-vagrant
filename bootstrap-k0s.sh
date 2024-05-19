@@ -8,6 +8,32 @@ registry_username='vagrant'
 registry_password='vagrant'
 domain="$(hostname --domain)"
 
+# see https://artifacthub.io/packages/helm/traefik/traefik
+# see https://github.com/traefik/traefik-helm-chart/releases
+# see https://github.com/traefik/traefik
+# renovate: datasource=helm depName=traefik registryUrl=https://helm.traefik.io/traefik
+traefik_chart_version='24.0.0' # app version 2.10.4.
+
+# see https://artifacthub.io/packages/helm/bitnami/metallb
+# see https://github.com/metallb/metallb
+# renovate: datasource=helm depName=metallb registryUrl=https://charts.bitnami.com/bitnami
+metallb_chart_version='4.7.2' # app version 0.13.11.
+
+# see https://artifacthub.io/packages/helm/bitnami/external-dns
+# see https://github.com/kubernetes-sigs/external-dns
+# renovate: datasource=helm depName=external-dns registryUrl=https://charts.bitnami.com/bitnami
+external_dns_chart_version='6.24.3' # app version 0.13.6.
+
+# see https://artifacthub.io/packages/helm/k8s-dashboard/kubernetes-dashboard
+# see https://github.com/kubernetes/dashboard
+# renovate: datasource=helm depName=kubernetes-dashboard registryUrl=https://kubernetes.github.io/dashboard
+kubernetes_dashboard_chart_version='6.0.8' # app version 2.7.0.
+
+# see https://artifacthub.io/packages/helm/cert-manager/cert-manager
+# see https://github.com/cert-manager/cert-manager
+# renovate: datasource=helm depName=cert-manager registryUrl=https://charts.jetstack.io
+cert_manager_chart_version='1.12.4' # app version 1.12.4.
+
 # ensure haproxy is in bootstrap mode.
 bash /vagrant/provision-haproxy-config.sh \
   bootstrap \
@@ -18,7 +44,7 @@ bash /vagrant/provision-haproxy-config.sh \
 # generate the k0sctl.yaml configuration file.
 # see https://docs.k0sproject.io/v1.26.8+k0s.0/k0sctl-install/
 # see https://docs.k0sproject.io/v1.26.8+k0s.0/configuration/
-python3 <<'EOF'
+python3 <<EOF
 import json
 
 def load_config():
@@ -78,7 +104,7 @@ def save_k0sctl_config():
                                     {
                                         'name': 'traefik',
                                         'chartname': 'traefik/traefik',
-                                        'version': '24.0.0', # installs traefik 2.10.4.
+                                        'version': '$traefik_chart_version',
                                         'namespace': 'cluster-traefik',
                                         'values':
                                             '''
@@ -134,7 +160,7 @@ def save_k0sctl_config():
                                     {
                                         'name': 'metallb',
                                         'chartname': 'bitnami/metallb',
-                                        'version': '4.7.2', # installs metallb 0.13.11.
+                                        'version': '$metallb_chart_version',
                                         'namespace': 'cluster-metallb'
                                     },
                                     # see https://artifacthub.io/packages/helm/bitnami/external-dns
@@ -143,7 +169,7 @@ def save_k0sctl_config():
                                     {
                                         'name': 'external-dns',
                                         'chartname': 'bitnami/external-dns',
-                                        'version': '6.24.3', # installs external-dns 0.13.6.
+                                        'version': '$external_dns_chart_version',
                                         'namespace': 'cluster-external-dns',
                                         'values':
                                             f'''
@@ -165,7 +191,7 @@ def save_k0sctl_config():
                                     {
                                         'name': 'kubernetes-dashboard',
                                         'chartname': 'kubernetes-dashboard/kubernetes-dashboard',
-                                        'version': '6.0.8', # installs kubernetes-dashboard 2.7.0.
+                                        'version': '$kubernetes_dashboard_chart_version',
                                         'namespace': 'cluster-dashboard',
                                         'values':
                                             f'''
@@ -290,17 +316,16 @@ bash /vagrant/provision-haproxy-config.sh \
 # NB YOU CANNOT INSTALL MULTIPLE INSTANCES OF CERT-MANAGER IN A CLUSTER.
 # NB this cannot be done from k0sctl.yaml because it needs the CRDs to be installaled separately.
 # see https://artifacthub.io/packages/helm/cert-manager/cert-manager
-# see https://github.com/jetstack/cert-manager/tree/master/deploy/charts/cert-manager
+# see https://github.com/cert-manager/cert-manager/tree/master/deploy/charts/cert-manager
 # see https://cert-manager.io/docs/installation/supported-releases/
 # see https://cert-manager.io/docs/configuration/selfsigned/#bootstrapping-ca-issuers
 # see https://cert-manager.io/docs/usage/ingress/
-cert_manager_version='v1.12.4'
 helm repo add jetstack https://charts.jetstack.io
 helm repo update
-kubectl apply -f "https://github.com/jetstack/cert-manager/releases/download/$cert_manager_version/cert-manager.crds.yaml"
+kubectl apply -f "https://github.com/cert-manager/cert-manager/releases/download/v$cert_manager_chart_version/cert-manager.crds.yaml"
 helm install cert-manager \
   --namespace cert-manager \
-  --version "$cert_manager_version" \
+  --version "$cert_manager_chart_version" \
   --create-namespace \
   --wait \
   jetstack/cert-manager

@@ -10,15 +10,42 @@ CONFIG_CONTROLLER_IP_ADDRESS = '10.10.0.3'
 CONFIG_CONTROLLER_IP_ADDRESSES = generate_ip_addresses('10.10.0.10', CONFIG_CONTROLLER_COUNT)
 CONFIG_WORKER_IP_ADDRESSES = generate_ip_addresses('10.10.0.15', CONFIG_WORKER_COUNT)
 CONFIG_METALLB_IP_ADDRESSES = '10.10.0.100-10.10.0.150'
-CONFIG_DOCKER_VERSION = '24.0.6' # NB execute apt-cache madison docker-ce to known the available versions.
-CONFIG_K0SCTL_VERSION = 'v0.15.5' # see https://github.com/k0sproject/k0sctl/releases
-CONFIG_K0S_VERSION = 'v1.26.8+k0s.0' # see https://github.com/k0sproject/k0s/releases
+
+# see https://github.com/moby/moby/releases
+# NB execute apt-cache madison docker-ce to known the available versions.
+# renovate: datasource=github-releases depName=moby/moby
+CONFIG_DOCKER_VERSION = '24.0.6'
+
+# see https://github.com/k0sproject/k0sctl/releases
+# renovate: datasource=github-releases depName=k0sproject/k0sctl
+CONFIG_K0SCTL_VERSION = 'v0.15.5'
+
+# see https://github.com/k0sproject/k0s/releases
+# renovate: datasource=github-releases depName=k0sproject/k0s
+CONFIG_K0S_VERSION = 'v1.26.8+k0s.0'
 CONFIG_KUBECTL_VERSION = CONFIG_K0S_VERSION.gsub(/v([\.\d]+).+/, '\1')
-CONFIG_K9S_VERSION = 'v0.27.4' # see https://github.com/derailed/k9s/releases
-CONFIG_KREW_VERSION = 'v0.4.4' # see https://github.com/kubernetes-sigs/krew/releases
-CONFIG_ETCDCTL_VERSION = 'v3.5.9' # see https://github.com/etcd-io/etcd/releases BUT make sure you use a version compatible with k0s go.mod.
-CONFIG_HELM_VERSION = 'v3.12.3' # see https://github.com/helm/helm/releases BUT make sure you use a version compatible with k0s go.mod.
-CONFIG_HELMFILE_VERSION = '0.156.0' # see https://github.com/helmfile/helmfile/releases
+
+# see https://github.com/derailed/k9s/releases
+# renovate: datasource=github-releases depName=derailed/k9s
+CONFIG_K9S_VERSION = 'v0.27.4'
+
+# see https://github.com/kubernetes-sigs/krew/releases
+# renovate: datasource=github-releases depName=kubernetes-sigs/krew
+CONFIG_KREW_VERSION = 'v0.4.4'
+
+# see https://github.com/etcd-io/etcd/releases
+# NB make sure you use a version compatible with k0s go.mod.
+# renovate: datasource=github-releases depName=etcd-io/etcd
+CONFIG_ETCDCTL_VERSION = 'v3.5.9'
+
+# see https://github.com/helm/helm/releases
+# NB make sure you use a version compatible with k0s go.mod.
+# renovate: datasource=github-releases depName=helm/helm
+CONFIG_HELM_VERSION = 'v3.12.3'
+
+# see https://github.com/helmfile/helmfile/releases
+# renovate: datasource=github-releases depName=helmfile/helmfile
+CONFIG_HELMFILE_VERSION = '0.156.0'
 
 # see https://launchpad.net/ubuntu/+archivemirrors
 # see https://launchpad.net/ubuntu/+mirror/mirrors.up.pt-archive

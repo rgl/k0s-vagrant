@@ -41,7 +41,7 @@ CONFIG_ETCDCTL_VERSION = 'v3.5.13'
 # see https://github.com/helm/helm/releases
 # NB make sure you use a version compatible with k0s go.mod.
 # renovate: datasource=github-releases depName=helm/helm
-CONFIG_HELM_VERSION = 'v3.12.3'
+CONFIG_HELM_VERSION = 'v3.15.0'
 
 # see https://github.com/helmfile/helmfile/releases
 # renovate: datasource=github-releases depName=helmfile/helmfile

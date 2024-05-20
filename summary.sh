@@ -47,7 +47,7 @@ kubectl get endpoints --all-namespaces
 ssh worker1 ipvsadm --list --numeric
 
 # kubernetes info.
-kubectl version --short
+kubectl version
 kubectl cluster-info
 kubectl get apiservices
 kubectl api-versions | sort

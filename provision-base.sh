@@ -138,3 +138,13 @@ apt-get install -y curl
 
 # install ipvsadm.
 apt-get install -y ipvsadm
+
+# load the ipvs kernel modules.
+cat >/etc/modules-load.d/ipvs.conf <<'EOF'
+ip_vs
+ip_vs_rr
+ip_vs_wrr
+ip_vs_lc
+ip_vs_sh
+EOF
+cat /etc/modules-load.d/ipvs.conf | xargs -L1 modprobe

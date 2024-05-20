@@ -1,14 +1,14 @@
 #!/bin/bash
 source /vagrant/lib.sh
 
-kubernetes_version="${1:-1.27.13}"; shift || true
+kubernetes_version="${1:-1.28.9}"; shift || true
 krew_version="${1:-v0.4.4}"; shift || true # NB see https://github.com/kubernetes-sigs/krew
 
 # see https://kubernetes.io/docs/tasks/tools/install-kubectl-linux/#install-using-native-package-management
 # see https://wiki.debian.org/DebianRepository/Format
-# see https://pkgs.k8s.io/core:/stable:/v1.27/deb/InRelease
-# see https://pkgs.k8s.io/core:/stable:/v1.27/deb/Packages
-# e.g. https://pkgs.k8s.io/core:/stable:/v1.27/deb/
+# see https://pkgs.k8s.io/core:/stable:/v1.28/deb/InRelease
+# see https://pkgs.k8s.io/core:/stable:/v1.28/deb/Packages
+# e.g. https://pkgs.k8s.io/core:/stable:/v1.28/deb/
 kubernetes_repository_version="$(echo "$kubernetes_version" | cut -d. -f1,2)"
 wget -qO- "https://pkgs.k8s.io/core:/stable:/v$kubernetes_repository_version/deb/Release.key" \
     | gpg --dearmor -o /etc/apt/keyrings/pkgs.k8s.io.gpg

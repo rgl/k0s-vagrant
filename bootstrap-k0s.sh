@@ -42,8 +42,8 @@ bash /vagrant/provision-haproxy-config.sh \
   "$(jq -r '.nodes[] | select(.type == "controller") | .ipAddress' /vagrant/shared/config.json | tr '\n' ',' | sed -E 's/,$//g')"
 
 # generate the k0sctl.yaml configuration file.
-# see https://docs.k0sproject.io/v1.29.4+k0s.0/k0sctl-install/
-# see https://docs.k0sproject.io/v1.29.4+k0s.0/configuration/
+# see https://docs.k0sproject.io/v1.30.0+k0s.0/k0sctl-install/
+# see https://docs.k0sproject.io/v1.30.0+k0s.0/configuration/
 python3 <<EOF
 import json
 import textwrap
@@ -101,7 +101,7 @@ def save_k0sctl_config():
                                     # see https://artifacthub.io/packages/helm/traefik/traefik
                                     # see https://github.com/traefik/traefik-helm-chart
                                     # see https://github.com/traefik/traefik-helm-chart/blob/master/traefik/values.yaml
-                                    # see https://docs.k0sproject.io/v1.29.4+k0s.0/examples/traefik-ingress/
+                                    # see https://docs.k0sproject.io/v1.30.0+k0s.0/examples/traefik-ingress/
                                     {
                                         'name': 'traefik',
                                         'chartname': 'traefik/traefik',
@@ -474,7 +474,7 @@ kubernetes_dashboard_host="kubernetes-dashboard.$domain"
 kubectl apply -n cluster-dashboard -f - <<EOF
 ---
 # see https://kubernetes.io/docs/concepts/services-networking/ingress/
-# see https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.29/#ingress-v1-networking-k8s-io
+# see https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.30/#ingress-v1-networking-k8s-io
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
@@ -582,7 +582,7 @@ etcd-info endpoint status
 
 # show the nodes.
 # NB the controller nodes do not appear in this list.
-# see https://docs.k0sproject.io/v1.29.4+k0s.0/FAQ/#why-doesnt-kubectl-get-nodes-list-the-k0s-controllers
+# see https://docs.k0sproject.io/v1.30.0+k0s.0/FAQ/#why-doesnt-kubectl-get-nodes-list-the-k0s-controllers
 kubectl get nodes -o wide
 
 # add the custom registry to the default service account (in the default namespace).

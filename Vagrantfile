@@ -22,7 +22,7 @@ CONFIG_K0SCTL_VERSION = 'v0.17.8'
 
 # see https://github.com/k0sproject/k0s/releases
 # renovate: datasource=github-releases depName=k0sproject/k0s
-CONFIG_K0S_VERSION = 'v1.29.4+k0s.0'
+CONFIG_K0S_VERSION = 'v1.30.0+k0s.0'
 CONFIG_KUBECTL_VERSION = CONFIG_K0S_VERSION.gsub(/v([\.\d]+).+/, '\1')
 
 # see https://github.com/derailed/k9s/releases

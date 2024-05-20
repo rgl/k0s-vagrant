@@ -69,6 +69,7 @@ def save_k0sctl_config():
                             'enabled': False,
                         },
                         'api': {
+                            'address': config['controllerIpAddress'],
                             'externalAddress': config['controllerFqdn'],
                             'sans': [
                                 config['controllerIpAddress'],
